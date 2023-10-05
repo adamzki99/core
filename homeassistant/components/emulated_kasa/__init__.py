@@ -50,29 +50,28 @@ CONFIG_SCHEMA = vol.Schema(
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the emulated_kasa component."""
-    if not (conf := config.get(DOMAIN)):
-        return True
-    entity_configs = conf[CONF_ENTITIES]
+    if conf := config.get(DOMAIN):
+        entity_configs = conf[CONF_ENTITIES]
 
-    def devices():
-        """Devices to be emulated."""
-        yield from get_plug_devices(hass, entity_configs)
+        def devices():
+            """Devices to be emulated."""
+            yield from get_plug_devices(hass, entity_configs)
 
-    server = SenseLink(devices)
+        server = SenseLink(devices)
 
-    async def stop_emulated_kasa(event):
-        await server.stop()
+        async def stop_emulated_kasa(event):
+            await server.stop()
 
-    async def start_emulated_kasa(event):
-        await validate_configs(hass, entity_configs)
-        try:
-            await server.start()
-        except OSError as error:
-            _LOGGER.error("Failed to create UDP server at port 9999: %s", error)
-        else:
-            hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, stop_emulated_kasa)
+        async def start_emulated_kasa(event):
+            await validate_configs(hass, entity_configs)
+            try:
+                await server.start()
+            except OSError as error:
+                _LOGGER.error("Failed to create UDP server at port 9999: %s", error)
+            else:
+                hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, stop_emulated_kasa)
 
-    hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, start_emulated_kasa)
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, start_emulated_kasa)
 
     return True
 
