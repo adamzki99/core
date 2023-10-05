@@ -48,18 +48,18 @@ CONFIG_SCHEMA = vol.Schema(
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the emulated roku component."""
-    if (conf := config.get(DOMAIN)) is None:
-        return True
+    if (conf := config.get(DOMAIN)) is not None:
+        existing_servers = configured_servers(hass)
 
-    existing_servers = configured_servers(hass)
-
-    for entry in conf[CONF_SERVERS]:
-        if entry[CONF_NAME] not in existing_servers:
-            hass.async_create_task(
-                hass.config_entries.flow.async_init(
-                    DOMAIN, context={"source": config_entries.SOURCE_IMPORT}, data=entry
+        for entry in conf[CONF_SERVERS]:
+            if entry[CONF_NAME] not in existing_servers:
+                hass.async_create_task(
+                    hass.config_entries.flow.async_init(
+                        DOMAIN,
+                        context={"source": config_entries.SOURCE_IMPORT},
+                        data=entry,
+                    )
                 )
-            )
 
     return True
 
