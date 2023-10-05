@@ -124,25 +124,23 @@ CONFIG_SCHEMA = vol.Schema(
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the OctoPrint component."""
-    if DOMAIN not in config:
-        return True
+    if DOMAIN in config:
+        domain_config = config[DOMAIN]
 
-    domain_config = config[DOMAIN]
-
-    for conf in domain_config:
-        hass.async_create_task(
-            hass.config_entries.flow.async_init(
-                DOMAIN,
-                context={"source": SOURCE_IMPORT},
-                data={
-                    CONF_API_KEY: conf[CONF_API_KEY],
-                    CONF_HOST: conf[CONF_HOST],
-                    CONF_PATH: conf[CONF_PATH],
-                    CONF_PORT: conf[CONF_PORT],
-                    CONF_SSL: conf[CONF_SSL],
-                },
+        for conf in domain_config:
+            hass.async_create_task(
+                hass.config_entries.flow.async_init(
+                    DOMAIN,
+                    context={"source": SOURCE_IMPORT},
+                    data={
+                        CONF_API_KEY: conf[CONF_API_KEY],
+                        CONF_HOST: conf[CONF_HOST],
+                        CONF_PATH: conf[CONF_PATH],
+                        CONF_PORT: conf[CONF_PORT],
+                        CONF_SSL: conf[CONF_SSL],
+                    },
+                )
             )
-        )
 
     return True
 
