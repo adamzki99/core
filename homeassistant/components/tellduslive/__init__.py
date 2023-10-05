@@ -100,19 +100,17 @@ async def async_new_client(hass, session, entry):
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Telldus Live component."""
-    if DOMAIN not in config:
-        return True
-
-    hass.async_create_task(
-        hass.config_entries.flow.async_init(
-            DOMAIN,
-            context={"source": config_entries.SOURCE_IMPORT},
-            data={
-                CONF_HOST: config[DOMAIN].get(CONF_HOST),
-                KEY_SCAN_INTERVAL: config[DOMAIN][CONF_SCAN_INTERVAL],
-            },
+    if DOMAIN in config:
+        hass.async_create_task(
+            hass.config_entries.flow.async_init(
+                DOMAIN,
+                context={"source": config_entries.SOURCE_IMPORT},
+                data={
+                    CONF_HOST: config[DOMAIN].get(CONF_HOST),
+                    KEY_SCAN_INTERVAL: config[DOMAIN][CONF_SCAN_INTERVAL],
+                },
+            )
         )
-    )
     return True
 
 
