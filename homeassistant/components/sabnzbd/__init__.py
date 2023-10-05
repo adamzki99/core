@@ -97,17 +97,15 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the SABnzbd component."""
     hass.data.setdefault(DOMAIN, {})
 
-    if hass.config_entries.async_entries(DOMAIN):
-        return True
-
-    if DOMAIN in config:
-        hass.async_create_task(
-            hass.config_entries.flow.async_init(
-                DOMAIN,
-                context={"source": SOURCE_IMPORT},
-                data=config[DOMAIN],
+    if not hass.config_entries.async_entries(DOMAIN):
+        if DOMAIN in config:
+            hass.async_create_task(
+                hass.config_entries.flow.async_init(
+                    DOMAIN,
+                    context={"source": SOURCE_IMPORT},
+                    data=config[DOMAIN],
+                )
             )
-        )
 
     return True
 
