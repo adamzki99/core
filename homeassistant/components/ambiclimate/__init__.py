@@ -27,14 +27,12 @@ PLATFORMS = [Platform.CLIMATE]
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up Ambiclimate components."""
-    if DOMAIN not in config:
-        return True
+    if DOMAIN in config:
+        conf = config[DOMAIN]
 
-    conf = config[DOMAIN]
-
-    config_flow.register_flow_implementation(
-        hass, conf[CONF_CLIENT_ID], conf[CONF_CLIENT_SECRET]
-    )
+        config_flow.register_flow_implementation(
+            hass, conf[CONF_CLIENT_ID], conf[CONF_CLIENT_SECRET]
+        )
 
     return True
 
