@@ -38,16 +38,14 @@ PLATFORMS = [Platform.COVER, Platform.SENSOR]
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Soma component."""
-    if DOMAIN not in config:
-        return True
-
-    hass.async_create_task(
-        hass.config_entries.flow.async_init(
-            DOMAIN,
-            data=config[DOMAIN],
-            context={"source": config_entries.SOURCE_IMPORT},
+    if DOMAIN in config:
+        hass.async_create_task(
+            hass.config_entries.flow.async_init(
+                DOMAIN,
+                data=config[DOMAIN],
+                context={"source": config_entries.SOURCE_IMPORT},
+            )
         )
-    )
 
     return True
 
