@@ -85,13 +85,11 @@ async def async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up SQL from yaml config."""
-    if (conf := config.get(DOMAIN)) is None:
-        return True
-
-    for sensor_conf in conf:
-        await discovery.async_load_platform(
-            hass, Platform.SENSOR, DOMAIN, sensor_conf, config
-        )
+    if (conf := config.get(DOMAIN)) is not None:
+        for sensor_conf in conf:
+            await discovery.async_load_platform(
+                hass, Platform.SENSOR, DOMAIN, sensor_conf, config
+            )
 
     return True
 
