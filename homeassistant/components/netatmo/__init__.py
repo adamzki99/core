@@ -97,38 +97,36 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         DATA_CAMERAS: {},
     }
 
-    if DOMAIN not in config:
-        return True
-
-    await async_import_client_credential(
-        hass,
-        DOMAIN,
-        ClientCredential(
-            config[DOMAIN][CONF_CLIENT_ID],
-            config[DOMAIN][CONF_CLIENT_SECRET],
-        ),
-    )
-    _LOGGER.warning(
-        "Configuration of Netatmo integration in YAML is deprecated and "
-        "will be removed in a future release; Your existing configuration "
-        "(including OAuth Application Credentials) have been imported into "
-        "the UI automatically and can be safely removed from your "
-        "configuration.yaml file"
-    )
-    async_create_issue(
-        hass,
-        HOMEASSISTANT_DOMAIN,
-        f"deprecated_yaml_{DOMAIN}",
-        breaks_in_ha_version="2024.2.0",
-        is_fixable=False,
-        issue_domain=DOMAIN,
-        severity=IssueSeverity.WARNING,
-        translation_key="deprecated_yaml",
-        translation_placeholders={
-            "domain": DOMAIN,
-            "integration_title": "Netatmo",
-        },
-    )
+    if DOMAIN in config:
+        await async_import_client_credential(
+            hass,
+            DOMAIN,
+            ClientCredential(
+                config[DOMAIN][CONF_CLIENT_ID],
+                config[DOMAIN][CONF_CLIENT_SECRET],
+            ),
+        )
+        _LOGGER.warning(
+            "Configuration of Netatmo integration in YAML is deprecated and "
+            "will be removed in a future release; Your existing configuration "
+            "(including OAuth Application Credentials) have been imported into "
+            "the UI automatically and can be safely removed from your "
+            "configuration.yaml file"
+        )
+        async_create_issue(
+            hass,
+            HOMEASSISTANT_DOMAIN,
+            f"deprecated_yaml_{DOMAIN}",
+            breaks_in_ha_version="2024.2.0",
+            is_fixable=False,
+            issue_domain=DOMAIN,
+            severity=IssueSeverity.WARNING,
+            translation_key="deprecated_yaml",
+            translation_placeholders={
+                "domain": DOMAIN,
+                "integration_title": "Netatmo",
+            },
+        )
 
     return True
 
