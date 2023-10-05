@@ -58,15 +58,13 @@ PLATFORMS = [Platform.MEDIA_PLAYER, Platform.REMOTE]
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up Panasonic Viera from configuration.yaml."""
-    if DOMAIN not in config:
-        return True
-
-    for conf in config[DOMAIN]:
-        hass.async_create_task(
-            hass.config_entries.flow.async_init(
-                DOMAIN, context={"source": SOURCE_IMPORT}, data=conf
+    if DOMAIN in config:
+        for conf in config[DOMAIN]:
+            hass.async_create_task(
+                hass.config_entries.flow.async_init(
+                    DOMAIN, context={"source": SOURCE_IMPORT}, data=conf
+                )
             )
-        )
 
     return True
 
