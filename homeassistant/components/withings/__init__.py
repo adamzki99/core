@@ -72,16 +72,19 @@ CONFIG_SCHEMA = vol.Schema(
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Withings component."""
+
+    return_value = False
+
     if not (conf := config.get(DOMAIN)):
         # Apply the defaults.
         conf = CONFIG_SCHEMA({DOMAIN: {}})[DOMAIN]
         hass.data[DOMAIN] = {const.CONFIG: conf}
-        return True
+        return_value = True
 
     hass.data[DOMAIN] = {const.CONFIG: conf}
 
     # Setup the oauth2 config flow.
-    if CONF_CLIENT_ID in conf:
+    if CONF_CLIENT_ID in conf and return_value is False:
         await async_import_client_credential(
             hass,
             DOMAIN,
