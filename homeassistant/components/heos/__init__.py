@@ -53,23 +53,24 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the HEOS component."""
     if DOMAIN not in config:
-        return True
-    host = config[DOMAIN][CONF_HOST]
-    entries = hass.config_entries.async_entries(DOMAIN)
-    if not entries:
-        # Create new entry based on config
-        hass.async_create_task(
-            hass.config_entries.flow.async_init(
-                DOMAIN, context={"source": SOURCE_IMPORT}, data={CONF_HOST: host}
+        host = config[DOMAIN][CONF_HOST]
+        entries = hass.config_entries.async_entries(DOMAIN)
+        if not entries:
+            # Create new entry based on config
+            hass.async_create_task(
+                hass.config_entries.flow.async_init(
+                    DOMAIN, context={"source": SOURCE_IMPORT}, data={CONF_HOST: host}
+                )
             )
-        )
-    else:
-        # Check if host needs to be updated
-        entry = entries[0]
-        if entry.data[CONF_HOST] != host:
-            hass.config_entries.async_update_entry(
-                entry, title=format_title(host), data={**entry.data, CONF_HOST: host}
-            )
+        else:
+            # Check if host needs to be updated
+            entry = entries[0]
+            if entry.data[CONF_HOST] != host:
+                hass.config_entries.async_update_entry(
+                    entry,
+                    title=format_title(host),
+                    data={**entry.data, CONF_HOST: host},
+                )
 
     return True
 
