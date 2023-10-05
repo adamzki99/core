@@ -61,28 +61,26 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Legrand Home+ Control component from configuration.yaml."""
     hass.data[DOMAIN] = {}
 
-    if DOMAIN not in config:
-        return True
+    if DOMAIN in config:
+        async_create_issue(
+            hass,
+            DOMAIN,
+            _ISSUE_MOVE_TO_NETATMO,
+            is_fixable=False,
+            is_persistent=False,
+            breaks_in_ha_version="2023.12.0",  # Netatmo decided to shutdown the api in december
+            severity=IssueSeverity.WARNING,
+            translation_key=_ISSUE_MOVE_TO_NETATMO,
+            translation_placeholders={
+                "url": "https://www.home-assistant.io/integrations/netatmo/"
+            },
+        )
 
-    async_create_issue(
-        hass,
-        DOMAIN,
-        _ISSUE_MOVE_TO_NETATMO,
-        is_fixable=False,
-        is_persistent=False,
-        breaks_in_ha_version="2023.12.0",  # Netatmo decided to shutdown the api in december
-        severity=IssueSeverity.WARNING,
-        translation_key=_ISSUE_MOVE_TO_NETATMO,
-        translation_placeholders={
-            "url": "https://www.home-assistant.io/integrations/netatmo/"
-        },
-    )
-
-    # Register the implementation from the config information
-    config_flow.HomePlusControlFlowHandler.async_register_implementation(
-        hass,
-        helpers.HomePlusControlOAuth2Implementation(hass, config[DOMAIN]),
-    )
+        # Register the implementation from the config information
+        config_flow.HomePlusControlFlowHandler.async_register_implementation(
+            hass,
+            helpers.HomePlusControlOAuth2Implementation(hass, config[DOMAIN]),
+        )
 
     return True
 
