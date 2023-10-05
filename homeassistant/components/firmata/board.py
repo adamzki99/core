@@ -105,11 +105,9 @@ class FirmataBoard:
         """Reset the board to default state."""
         _LOGGER.debug("Shutting down board %s", self.name)
         # If the board was never setup, continue.
-        if self.api is None:
-            return True
-
-        await self.api.shutdown()
-        self.api = None
+        if self.api is not None:
+            await self.api.shutdown()
+            self.api = None
 
         return True
 
