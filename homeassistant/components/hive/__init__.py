@@ -53,22 +53,20 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Hive configuration setup."""
     hass.data[DOMAIN] = {}
 
-    if DOMAIN not in config:
-        return True
+    if DOMAIN in config:
+        conf = config[DOMAIN]
 
-    conf = config[DOMAIN]
-
-    if not hass.config_entries.async_entries(DOMAIN):
-        hass.async_create_task(
-            hass.config_entries.flow.async_init(
-                DOMAIN,
-                context={"source": config_entries.SOURCE_IMPORT},
-                data={
-                    CONF_USERNAME: conf[CONF_USERNAME],
-                    CONF_PASSWORD: conf[CONF_PASSWORD],
-                },
+        if not hass.config_entries.async_entries(DOMAIN):
+            hass.async_create_task(
+                hass.config_entries.flow.async_init(
+                    DOMAIN,
+                    context={"source": config_entries.SOURCE_IMPORT},
+                    data={
+                        CONF_USERNAME: conf[CONF_USERNAME],
+                        CONF_PASSWORD: conf[CONF_PASSWORD],
+                    },
+                )
             )
-        )
     return True
 
 
