@@ -58,18 +58,16 @@ CONFIG_SCHEMA = vol.Schema(
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Component setup, do nothing."""
-    if DOMAIN not in config:
-        return True
-
-    for device_id in config[DOMAIN]:
-        conf = config[DOMAIN][device_id]
-        hass.async_create_task(
-            hass.config_entries.flow.async_init(
-                DOMAIN,
-                context={"source": SOURCE_IMPORT},
-                data={CONF_HOST: conf[CONF_HOST], CONF_PORT: conf[CONF_PORT]},
+    if DOMAIN in config:
+        for device_id in config[DOMAIN]:
+            conf = config[DOMAIN][device_id]
+            hass.async_create_task(
+                hass.config_entries.flow.async_init(
+                    DOMAIN,
+                    context={"source": SOURCE_IMPORT},
+                    data={CONF_HOST: conf[CONF_HOST], CONF_PORT: conf[CONF_PORT]},
+                )
             )
-        )
     return True
 
 
