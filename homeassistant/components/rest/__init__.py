@@ -97,42 +97,46 @@ def _async_setup_shared_data(hass: HomeAssistant) -> None:
 
 async def _async_process_config(hass: HomeAssistant, config: ConfigType) -> bool:
     """Process rest configuration."""
-    if DOMAIN not in config:
-        return True
+    if DOMAIN in config:
+        refresh_coroutines: list[Coroutine[Any, Any, None]] = []
+        load_coroutines: list[Coroutine[Any, Any, None]] = []
+        rest_config: list[ConfigType] = config[DOMAIN]
+        for rest_idx, conf in enumerate(rest_config):
+            scan_interval: timedelta = conf.get(
+                CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
+            )
+            resource_template: template.Template | None = conf.get(
+                CONF_RESOURCE_TEMPLATE
+            )
+            rest = create_rest_data_from_config(hass, conf)
+            coordinator = _rest_coordinator(
+                hass, rest, resource_template, scan_interval
+            )
+            refresh_coroutines.append(coordinator.async_refresh())
+            hass.data[DOMAIN][REST_DATA].append({REST: rest, COORDINATOR: coordinator})
 
-    refresh_coroutines: list[Coroutine[Any, Any, None]] = []
-    load_coroutines: list[Coroutine[Any, Any, None]] = []
-    rest_config: list[ConfigType] = config[DOMAIN]
-    for rest_idx, conf in enumerate(rest_config):
-        scan_interval: timedelta = conf.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
-        resource_template: template.Template | None = conf.get(CONF_RESOURCE_TEMPLATE)
-        rest = create_rest_data_from_config(hass, conf)
-        coordinator = _rest_coordinator(hass, rest, resource_template, scan_interval)
-        refresh_coroutines.append(coordinator.async_refresh())
-        hass.data[DOMAIN][REST_DATA].append({REST: rest, COORDINATOR: coordinator})
+            for platform_domain in COORDINATOR_AWARE_PLATFORMS:
+                if platform_domain not in conf:
+                    continue
 
-        for platform_domain in COORDINATOR_AWARE_PLATFORMS:
-            if platform_domain not in conf:
-                continue
+                for platform_conf in conf[platform_domain]:
+                    hass.data[DOMAIN][platform_domain].append(platform_conf)
+                    platform_idx = len(hass.data[DOMAIN][platform_domain]) - 1
 
-            for platform_conf in conf[platform_domain]:
-                hass.data[DOMAIN][platform_domain].append(platform_conf)
-                platform_idx = len(hass.data[DOMAIN][platform_domain]) - 1
+                    load_coroutine = discovery.async_load_platform(
+                        hass,
+                        platform_domain,
+                        DOMAIN,
+                        {REST_IDX: rest_idx, PLATFORM_IDX: platform_idx},
+                        config,
+                    )
+                    load_coroutines.append(load_coroutine)
 
-                load_coroutine = discovery.async_load_platform(
-                    hass,
-                    platform_domain,
-                    DOMAIN,
-                    {REST_IDX: rest_idx, PLATFORM_IDX: platform_idx},
-                    config,
-                )
-                load_coroutines.append(load_coroutine)
+        if refresh_coroutines:
+            await asyncio.gather(*refresh_coroutines)
 
-    if refresh_coroutines:
-        await asyncio.gather(*refresh_coroutines)
-
-    if load_coroutines:
-        await asyncio.gather(*load_coroutines)
+        if load_coroutines:
+            await asyncio.gather(*load_coroutines)
 
     return True
 
