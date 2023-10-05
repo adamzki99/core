@@ -54,39 +54,39 @@ CONFIG_SCHEMA = vol.Schema(
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the IFTTT service component."""
-    if DOMAIN not in config:
-        return True
+    if DOMAIN in config:
+        api_keys = config[DOMAIN][CONF_KEY]
+        if isinstance(api_keys, str):
+            api_keys = {"default": api_keys}
 
-    api_keys = config[DOMAIN][CONF_KEY]
-    if isinstance(api_keys, str):
-        api_keys = {"default": api_keys}
+        def trigger_service(call: ServiceCall) -> None:
+            """Handle IFTTT trigger service calls."""
+            event = call.data[ATTR_EVENT]
+            targets = call.data.get(ATTR_TARGET, list(api_keys))
+            value1 = call.data.get(ATTR_VALUE1)
+            value2 = call.data.get(ATTR_VALUE2)
+            value3 = call.data.get(ATTR_VALUE3)
 
-    def trigger_service(call: ServiceCall) -> None:
-        """Handle IFTTT trigger service calls."""
-        event = call.data[ATTR_EVENT]
-        targets = call.data.get(ATTR_TARGET, list(api_keys))
-        value1 = call.data.get(ATTR_VALUE1)
-        value2 = call.data.get(ATTR_VALUE2)
-        value3 = call.data.get(ATTR_VALUE3)
+            target_keys = {}
+            for target in targets:
+                if target not in api_keys:
+                    _LOGGER.error("No IFTTT api key for %s", target)
+                    continue
+                target_keys[target] = api_keys[target]
 
-        target_keys = {}
-        for target in targets:
-            if target not in api_keys:
-                _LOGGER.error("No IFTTT api key for %s", target)
-                continue
-            target_keys[target] = api_keys[target]
+            try:
+                for target, key in target_keys.items():
+                    res = pyfttt.send_event(key, event, value1, value2, value3)
+                    if res.status_code != HTTPStatus.OK:
+                        _LOGGER.error(
+                            "IFTTT reported error sending event to %s", target
+                        )
+            except requests.exceptions.RequestException:
+                _LOGGER.exception("Error communicating with IFTTT")
 
-        try:
-            for target, key in target_keys.items():
-                res = pyfttt.send_event(key, event, value1, value2, value3)
-                if res.status_code != HTTPStatus.OK:
-                    _LOGGER.error("IFTTT reported error sending event to %s", target)
-        except requests.exceptions.RequestException:
-            _LOGGER.exception("Error communicating with IFTTT")
-
-    hass.services.async_register(
-        DOMAIN, SERVICE_TRIGGER, trigger_service, schema=SERVICE_TRIGGER_SCHEMA
-    )
+        hass.services.async_register(
+            DOMAIN, SERVICE_TRIGGER, trigger_service, schema=SERVICE_TRIGGER_SCHEMA
+        )
 
     return True
 
