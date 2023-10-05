@@ -50,16 +50,16 @@ CONFIG_SCHEMA = vol.Schema(
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Toon components."""
-    if DOMAIN not in config:
-        return True
+    if DOMAIN in config:
+        register_oauth2_implementations(
+            hass, config[DOMAIN][CONF_CLIENT_ID], config[DOMAIN][CONF_CLIENT_SECRET]
+        )
 
-    register_oauth2_implementations(
-        hass, config[DOMAIN][CONF_CLIENT_ID], config[DOMAIN][CONF_CLIENT_SECRET]
-    )
-
-    hass.async_create_task(
-        hass.config_entries.flow.async_init(DOMAIN, context={"source": SOURCE_IMPORT})
-    )
+        hass.async_create_task(
+            hass.config_entries.flow.async_init(
+                DOMAIN, context={"source": SOURCE_IMPORT}
+            )
+        )
 
     return True
 
