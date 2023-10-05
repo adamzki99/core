@@ -97,19 +97,17 @@ CONFIG_SCHEMA = vol.Schema(
 
 async def async_setup(hass: HomeAssistant, yaml_config: ConfigType) -> bool:
     """Activate Google Actions component."""
-    if DOMAIN not in yaml_config:
-        return True
+    if DOMAIN in yaml_config:
+        hass.data[DOMAIN] = {}
+        hass.data[DOMAIN][DATA_CONFIG] = yaml_config[DOMAIN]
 
-    hass.data[DOMAIN] = {}
-    hass.data[DOMAIN][DATA_CONFIG] = yaml_config[DOMAIN]
-
-    hass.async_create_task(
-        hass.config_entries.flow.async_init(
-            DOMAIN,
-            context={"source": SOURCE_IMPORT},
-            data={CONF_PROJECT_ID: yaml_config[DOMAIN][CONF_PROJECT_ID]},
+        hass.async_create_task(
+            hass.config_entries.flow.async_init(
+                DOMAIN,
+                context={"source": SOURCE_IMPORT},
+                data={CONF_PROJECT_ID: yaml_config[DOMAIN][CONF_PROJECT_ID]},
+            )
         )
-    )
 
     return True
 
