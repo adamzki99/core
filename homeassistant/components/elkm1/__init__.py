@@ -193,33 +193,31 @@ async def async_setup(hass: HomeAssistant, hass_config: ConfigType) -> bool:
         hass, _async_discovery, DISCOVERY_INTERVAL, cancel_on_shutdown=True
     )
 
-    if DOMAIN not in hass_config:
-        return True
+    if DOMAIN in hass_config:
+        for index, conf in enumerate(hass_config[DOMAIN]):
+            _LOGGER.debug("Importing elkm1 #%d - %s", index, conf[CONF_HOST])
 
-    for index, conf in enumerate(hass_config[DOMAIN]):
-        _LOGGER.debug("Importing elkm1 #%d - %s", index, conf[CONF_HOST])
-
-        # The update of the config entry is done in async_setup
-        # to ensure the entry if updated before async_setup_entry
-        # is called to avoid a situation where the user has to restart
-        # twice for the changes to take effect
-        current_config_entry = _async_find_matching_config_entry(
-            hass, conf[CONF_PREFIX]
-        )
-        if current_config_entry:
-            # If they alter the yaml config we import the changes
-            # since there currently is no practical way to do an options flow
-            # with the large amount of include/exclude/enabled options that elkm1 has.
-            hass.config_entries.async_update_entry(current_config_entry, data=conf)
-            continue
-
-        hass.async_create_task(
-            hass.config_entries.flow.async_init(
-                DOMAIN,
-                context={"source": SOURCE_IMPORT},
-                data=conf,
+            # The update of the config entry is done in async_setup
+            # to ensure the entry if updated before async_setup_entry
+            # is called to avoid a situation where the user has to restart
+            # twice for the changes to take effect
+            current_config_entry = _async_find_matching_config_entry(
+                hass, conf[CONF_PREFIX]
             )
-        )
+            if current_config_entry:
+                # If they alter the yaml config we import the changes
+                # since there currently is no practical way to do an options flow
+                # with the large amount of include/exclude/enabled options that elkm1 has.
+                hass.config_entries.async_update_entry(current_config_entry, data=conf)
+                continue
+
+            hass.async_create_task(
+                hass.config_entries.flow.async_init(
+                    DOMAIN,
+                    context={"source": SOURCE_IMPORT},
+                    data=conf,
+                )
+            )
 
     return True
 
