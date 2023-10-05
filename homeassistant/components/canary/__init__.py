@@ -60,32 +60,30 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Canary integration."""
     hass.data.setdefault(DOMAIN, {})
 
-    if hass.config_entries.async_entries(DOMAIN):
-        return True
-
-    ffmpeg_arguments = DEFAULT_FFMPEG_ARGUMENTS
-    if CAMERA_DOMAIN in config:
-        camera_config = next(
-            (item for item in config[CAMERA_DOMAIN] if item["platform"] == DOMAIN),
-            None,
-        )
-
-        if camera_config:
-            ffmpeg_arguments = camera_config.get(
-                CONF_FFMPEG_ARGUMENTS, DEFAULT_FFMPEG_ARGUMENTS
+    if not hass.config_entries.async_entries(DOMAIN):
+        ffmpeg_arguments = DEFAULT_FFMPEG_ARGUMENTS
+        if CAMERA_DOMAIN in config:
+            camera_config = next(
+                (item for item in config[CAMERA_DOMAIN] if item["platform"] == DOMAIN),
+                None,
             )
 
-    if DOMAIN in config:
-        if ffmpeg_arguments != DEFAULT_FFMPEG_ARGUMENTS:
-            config[DOMAIN][CONF_FFMPEG_ARGUMENTS] = ffmpeg_arguments
+            if camera_config:
+                ffmpeg_arguments = camera_config.get(
+                    CONF_FFMPEG_ARGUMENTS, DEFAULT_FFMPEG_ARGUMENTS
+                )
 
-        hass.async_create_task(
-            hass.config_entries.flow.async_init(
-                DOMAIN,
-                context={"source": SOURCE_IMPORT},
-                data=config[DOMAIN],
+        if DOMAIN in config:
+            if ffmpeg_arguments != DEFAULT_FFMPEG_ARGUMENTS:
+                config[DOMAIN][CONF_FFMPEG_ARGUMENTS] = ffmpeg_arguments
+
+            hass.async_create_task(
+                hass.config_entries.flow.async_init(
+                    DOMAIN,
+                    context={"source": SOURCE_IMPORT},
+                    data=config[DOMAIN],
+                )
             )
-        )
     return True
 
 
