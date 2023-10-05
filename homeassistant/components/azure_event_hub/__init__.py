@@ -71,23 +71,22 @@ async def async_setup(hass: HomeAssistant, yaml_config: ConfigType) -> bool:
     deprecated warning and pass the rest to the config flow.
     """
     hass.data.setdefault(DOMAIN, {DATA_FILTER: FILTER_SCHEMA({})})
-    if DOMAIN not in yaml_config:
-        return True
-    hass.data[DOMAIN][DATA_FILTER] = yaml_config[DOMAIN].pop(CONF_FILTER)
+    if DOMAIN in yaml_config:
+        hass.data[DOMAIN][DATA_FILTER] = yaml_config[DOMAIN].pop(CONF_FILTER)
 
-    if not yaml_config[DOMAIN]:
-        return True
-    _LOGGER.warning(
-        "Loading Azure Event Hub completely via yaml config is deprecated; Only the"
-        " Filter can be set in yaml, the rest is done through a config flow and has"
-        " been imported, all other keys but filter can be deleted from"
-        " configuration.yaml"
-    )
-    hass.async_create_task(
-        hass.config_entries.flow.async_init(
-            DOMAIN, context={"source": SOURCE_IMPORT}, data=yaml_config[DOMAIN]
+    if yaml_config[DOMAIN]:
+        _LOGGER.warning(
+            "Loading Azure Event Hub completely via yaml config is deprecated; Only the"
+            " Filter can be set in yaml, the rest is done through a config flow and has"
+            " been imported, all other keys but filter can be deleted from"
+            " configuration.yaml"
         )
-    )
+        hass.async_create_task(
+            hass.config_entries.flow.async_init(
+                DOMAIN, context={"source": SOURCE_IMPORT}, data=yaml_config[DOMAIN]
+            )
+        )
+
     return True
 
 
