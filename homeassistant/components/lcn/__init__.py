@@ -52,21 +52,19 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the LCN component."""
-    if DOMAIN not in config:
-        return True
+    if DOMAIN in config:
+        # initialize a config_flow for all LCN configurations read from
+        # configuration.yaml
+        config_entries_data = import_lcn_config(config[DOMAIN])
 
-    # initialize a config_flow for all LCN configurations read from
-    # configuration.yaml
-    config_entries_data = import_lcn_config(config[DOMAIN])
-
-    for config_entry_data in config_entries_data:
-        hass.async_create_task(
-            hass.config_entries.flow.async_init(
-                DOMAIN,
-                context={"source": config_entries.SOURCE_IMPORT},
-                data=config_entry_data,
+        for config_entry_data in config_entries_data:
+            hass.async_create_task(
+                hass.config_entries.flow.async_init(
+                    DOMAIN,
+                    context={"source": config_entries.SOURCE_IMPORT},
+                    data=config_entry_data,
+                )
             )
-        )
     return True
 
 
