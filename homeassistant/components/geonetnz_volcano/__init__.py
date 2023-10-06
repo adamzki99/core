@@ -54,31 +54,27 @@ CONFIG_SCHEMA = vol.Schema(
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the GeoNet NZ Volcano component."""
-    if DOMAIN not in config:
-        return True
+    if DOMAIN in config:
+        conf = config[DOMAIN]
 
-    conf = config[DOMAIN]
+        latitude = conf.get(CONF_LATITUDE, hass.config.latitude)
+        longitude = conf.get(CONF_LONGITUDE, hass.config.longitude)
+        scan_interval = conf[CONF_SCAN_INTERVAL]
 
-    latitude = conf.get(CONF_LATITUDE, hass.config.latitude)
-    longitude = conf.get(CONF_LONGITUDE, hass.config.longitude)
-    scan_interval = conf[CONF_SCAN_INTERVAL]
-
-    identifier = f"{latitude}, {longitude}"
-    if identifier in configured_instances(hass):
-        return True
-
-    hass.async_create_task(
-        hass.config_entries.flow.async_init(
-            DOMAIN,
-            context={"source": SOURCE_IMPORT},
-            data={
-                CONF_LATITUDE: latitude,
-                CONF_LONGITUDE: longitude,
-                CONF_RADIUS: conf[CONF_RADIUS],
-                CONF_SCAN_INTERVAL: scan_interval,
-            },
-        )
-    )
+        identifier = f"{latitude}, {longitude}"
+        if identifier not in configured_instances(hass):
+            hass.async_create_task(
+                hass.config_entries.flow.async_init(
+                    DOMAIN,
+                    context={"source": SOURCE_IMPORT},
+                    data={
+                        CONF_LATITUDE: latitude,
+                        CONF_LONGITUDE: longitude,
+                        CONF_RADIUS: conf[CONF_RADIUS],
+                        CONF_SCAN_INTERVAL: scan_interval,
+                    },
+                )
+            )
 
     return True
 
