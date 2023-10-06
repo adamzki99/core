@@ -76,11 +76,9 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             data["done"].append(STEP_USER)
             await store.async_save(data)
 
-    if set(data["done"]) == set(STEPS):
-        return True
+    if set(data["done"]) != set(STEPS):
+        hass.data[DOMAIN] = data
 
-    hass.data[DOMAIN] = data
-
-    await views.async_setup(hass, data, store)
+        await views.async_setup(hass, data, store)
 
     return True
