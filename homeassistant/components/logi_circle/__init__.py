@@ -105,26 +105,24 @@ LOGI_CIRCLE_SERVICE_RECORD = vol.Schema(
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up configured Logi Circle component."""
-    if DOMAIN not in config:
-        return True
+    if DOMAIN in config:
+        conf = config[DOMAIN]
 
-    conf = config[DOMAIN]
-
-    config_flow.register_flow_implementation(
-        hass,
-        DOMAIN,
-        client_id=conf[CONF_CLIENT_ID],
-        client_secret=conf[CONF_CLIENT_SECRET],
-        api_key=conf[CONF_API_KEY],
-        redirect_uri=conf[CONF_REDIRECT_URI],
-        sensors=conf[CONF_SENSORS],
-    )
-
-    hass.async_create_task(
-        hass.config_entries.flow.async_init(
-            DOMAIN, context={"source": config_entries.SOURCE_IMPORT}
+        config_flow.register_flow_implementation(
+            hass,
+            DOMAIN,
+            client_id=conf[CONF_CLIENT_ID],
+            client_secret=conf[CONF_CLIENT_SECRET],
+            api_key=conf[CONF_API_KEY],
+            redirect_uri=conf[CONF_REDIRECT_URI],
+            sensors=conf[CONF_SENSORS],
         )
-    )
+
+        hass.async_create_task(
+            hass.config_entries.flow.async_init(
+                DOMAIN, context={"source": config_entries.SOURCE_IMPORT}
+            )
+        )
 
     return True
 
