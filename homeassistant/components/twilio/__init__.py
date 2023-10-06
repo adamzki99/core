@@ -35,13 +35,11 @@ CONFIG_SCHEMA = vol.Schema(
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Twilio component."""
-    if DOMAIN not in config:
-        return True
-
-    conf = config[DOMAIN]
-    hass.data[DATA_TWILIO] = Client(
-        conf.get(CONF_ACCOUNT_SID), conf.get(CONF_AUTH_TOKEN)
-    )
+    if DOMAIN in config:
+        conf = config[DOMAIN]
+        hass.data[DATA_TWILIO] = Client(
+            conf.get(CONF_ACCOUNT_SID), conf.get(CONF_AUTH_TOKEN)
+        )
     return True
 
 
