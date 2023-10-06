@@ -63,20 +63,18 @@ CONFIG_SCHEMA = vol.Schema(
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Minut Point component."""
-    if DOMAIN not in config:
-        return True
+    if DOMAIN in config:
+        conf = config[DOMAIN]
 
-    conf = config[DOMAIN]
-
-    config_flow.register_flow_implementation(
-        hass, DOMAIN, conf[CONF_CLIENT_ID], conf[CONF_CLIENT_SECRET]
-    )
-
-    hass.async_create_task(
-        hass.config_entries.flow.async_init(
-            DOMAIN, context={"source": config_entries.SOURCE_IMPORT}
+        config_flow.register_flow_implementation(
+            hass, DOMAIN, conf[CONF_CLIENT_ID], conf[CONF_CLIENT_SECRET]
         )
-    )
+
+        hass.async_create_task(
+            hass.config_entries.flow.async_init(
+                DOMAIN, context={"source": config_entries.SOURCE_IMPORT}
+            )
+        )
 
     return True
 
