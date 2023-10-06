@@ -68,40 +68,40 @@ def get_unique_prefix(
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Jewish Calendar component."""
-    if DOMAIN not in config:
-        return True
+    if DOMAIN in config:
+        name = config[DOMAIN][CONF_NAME]
+        language = config[DOMAIN][CONF_LANGUAGE]
 
-    name = config[DOMAIN][CONF_NAME]
-    language = config[DOMAIN][CONF_LANGUAGE]
+        latitude = config[DOMAIN].get(CONF_LATITUDE, hass.config.latitude)
+        longitude = config[DOMAIN].get(CONF_LONGITUDE, hass.config.longitude)
+        diaspora = config[DOMAIN][CONF_DIASPORA]
 
-    latitude = config[DOMAIN].get(CONF_LATITUDE, hass.config.latitude)
-    longitude = config[DOMAIN].get(CONF_LONGITUDE, hass.config.longitude)
-    diaspora = config[DOMAIN][CONF_DIASPORA]
+        candle_lighting_offset = config[DOMAIN][CONF_CANDLE_LIGHT_MINUTES]
+        havdalah_offset = config[DOMAIN][CONF_HAVDALAH_OFFSET_MINUTES]
 
-    candle_lighting_offset = config[DOMAIN][CONF_CANDLE_LIGHT_MINUTES]
-    havdalah_offset = config[DOMAIN][CONF_HAVDALAH_OFFSET_MINUTES]
+        location = Location(
+            latitude=latitude,
+            longitude=longitude,
+            timezone=hass.config.time_zone,
+            diaspora=diaspora,
+        )
 
-    location = Location(
-        latitude=latitude,
-        longitude=longitude,
-        timezone=hass.config.time_zone,
-        diaspora=diaspora,
-    )
+        prefix = get_unique_prefix(
+            location, language, candle_lighting_offset, havdalah_offset
+        )
+        hass.data[DOMAIN] = {
+            "location": location,
+            "name": name,
+            "language": language,
+            "candle_lighting_offset": candle_lighting_offset,
+            "havdalah_offset": havdalah_offset,
+            "diaspora": diaspora,
+            "prefix": prefix,
+        }
 
-    prefix = get_unique_prefix(
-        location, language, candle_lighting_offset, havdalah_offset
-    )
-    hass.data[DOMAIN] = {
-        "location": location,
-        "name": name,
-        "language": language,
-        "candle_lighting_offset": candle_lighting_offset,
-        "havdalah_offset": havdalah_offset,
-        "diaspora": diaspora,
-        "prefix": prefix,
-    }
-
-    for platform in PLATFORMS:
-        hass.async_create_task(async_load_platform(hass, platform, DOMAIN, {}, config))
+        for platform in PLATFORMS:
+            hass.async_create_task(
+                async_load_platform(hass, platform, DOMAIN, {}, config)
+            )
 
     return True
