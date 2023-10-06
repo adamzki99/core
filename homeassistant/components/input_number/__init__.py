@@ -192,12 +192,9 @@ class NumberStorageCollection(collection.DictStorageCollection):
         """
         data = await super()._async_load_data()
 
-        if data is None:
-            return data
-
-        for number in data["items"]:
-            number.pop(CONF_INITIAL, None)
-
+        if data is not None:
+            for number in data["items"]:
+                number.pop(CONF_INITIAL, None)
         return data
 
     async def _update_data(self, item: dict, update_data: dict) -> dict:
