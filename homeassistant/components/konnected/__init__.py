@@ -234,17 +234,17 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     hass.http.register_view(KonnectedView)
 
     # Check if they have yaml configured devices
-    if CONF_DEVICES not in cfg:
-        return True
-
-    for device in cfg.get(CONF_DEVICES, []):
-        # Attempt to importing the cfg. Use
-        # hass.async_add_job to avoid a deadlock.
-        hass.async_create_task(
-            hass.config_entries.flow.async_init(
-                DOMAIN, context={"source": config_entries.SOURCE_IMPORT}, data=device
+    if CONF_DEVICES in cfg:
+        for device in cfg.get(CONF_DEVICES, []):
+            # Attempt to importing the cfg. Use
+            # hass.async_add_job to avoid a deadlock.
+            hass.async_create_task(
+                hass.config_entries.flow.async_init(
+                    DOMAIN,
+                    context={"source": config_entries.SOURCE_IMPORT},
+                    data=device,
+                )
             )
-        )
     return True
 
 
