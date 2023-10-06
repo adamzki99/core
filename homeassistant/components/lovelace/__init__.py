@@ -144,67 +144,68 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         "yaml_dashboards": config[DOMAIN].get(CONF_DASHBOARDS, {}),
     }
 
-    if hass.config.safe_mode:
-        return True
+    if not hass.config.safe_mode:
 
-    async def storage_dashboard_changed(change_type, item_id, item):
-        """Handle a storage dashboard change."""
-        url_path = item[CONF_URL_PATH]
+        async def storage_dashboard_changed(change_type, item_id, item):
+            """Handle a storage dashboard change."""
+            url_path = item[CONF_URL_PATH]
 
-        if change_type == collection.CHANGE_REMOVED:
-            frontend.async_remove_panel(hass, url_path)
-            await hass.data[DOMAIN]["dashboards"].pop(url_path).async_delete()
-            return
-
-        if change_type == collection.CHANGE_ADDED:
-            existing = hass.data[DOMAIN]["dashboards"].get(url_path)
-
-            if existing:
-                _LOGGER.warning(
-                    "Cannot register panel at %s, it is already defined in %s",
-                    url_path,
-                    existing,
-                )
+            if change_type == collection.CHANGE_REMOVED:
+                frontend.async_remove_panel(hass, url_path)
+                await hass.data[DOMAIN]["dashboards"].pop(url_path).async_delete()
                 return
 
-            hass.data[DOMAIN]["dashboards"][url_path] = dashboard.LovelaceStorage(
-                hass, item
-            )
+            if change_type == collection.CHANGE_ADDED:
+                existing = hass.data[DOMAIN]["dashboards"].get(url_path)
 
-            update = False
-        else:
-            hass.data[DOMAIN]["dashboards"][url_path].config = item
-            update = True
+                if existing:
+                    _LOGGER.warning(
+                        "Cannot register panel at %s, it is already defined in %s",
+                        url_path,
+                        existing,
+                    )
+                    return
 
-        try:
-            _register_panel(hass, url_path, MODE_STORAGE, item, update)
-        except ValueError:
-            _LOGGER.warning("Failed to %s panel %s from storage", change_type, url_path)
+                hass.data[DOMAIN]["dashboards"][url_path] = dashboard.LovelaceStorage(
+                    hass, item
+                )
 
-    # Process YAML dashboards
-    for url_path, dashboard_conf in hass.data[DOMAIN]["yaml_dashboards"].items():
-        # For now always mode=yaml
-        lovelace_config = dashboard.LovelaceYAML(hass, url_path, dashboard_conf)
-        hass.data[DOMAIN]["dashboards"][url_path] = lovelace_config
+                update = False
+            else:
+                hass.data[DOMAIN]["dashboards"][url_path].config = item
+                update = True
 
-        try:
-            _register_panel(hass, url_path, MODE_YAML, dashboard_conf, False)
-        except ValueError:
-            _LOGGER.warning("Panel url path %s is not unique", url_path)
+            try:
+                _register_panel(hass, url_path, MODE_STORAGE, item, update)
+            except ValueError:
+                _LOGGER.warning(
+                    "Failed to %s panel %s from storage", change_type, url_path
+                )
 
-    # Process storage dashboards
-    dashboards_collection = dashboard.DashboardsCollection(hass)
+        # Process YAML dashboards
+        for url_path, dashboard_conf in hass.data[DOMAIN]["yaml_dashboards"].items():
+            # For now always mode=yaml
+            lovelace_config = dashboard.LovelaceYAML(hass, url_path, dashboard_conf)
+            hass.data[DOMAIN]["dashboards"][url_path] = lovelace_config
 
-    dashboards_collection.async_add_listener(storage_dashboard_changed)
-    await dashboards_collection.async_load()
+            try:
+                _register_panel(hass, url_path, MODE_YAML, dashboard_conf, False)
+            except ValueError:
+                _LOGGER.warning("Panel url path %s is not unique", url_path)
 
-    collection.DictStorageCollectionWebsocket(
-        dashboards_collection,
-        "lovelace/dashboards",
-        "dashboard",
-        STORAGE_DASHBOARD_CREATE_FIELDS,
-        STORAGE_DASHBOARD_UPDATE_FIELDS,
-    ).async_setup(hass, create_list=False)
+        # Process storage dashboards
+        dashboards_collection = dashboard.DashboardsCollection(hass)
+
+        dashboards_collection.async_add_listener(storage_dashboard_changed)
+        await dashboards_collection.async_load()
+
+        collection.DictStorageCollectionWebsocket(
+            dashboards_collection,
+            "lovelace/dashboards",
+            "dashboard",
+            STORAGE_DASHBOARD_CREATE_FIELDS,
+            STORAGE_DASHBOARD_UPDATE_FIELDS,
+        ).async_setup(hass, create_list=False)
 
     return True
 
