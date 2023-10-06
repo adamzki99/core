@@ -40,10 +40,8 @@ CONFIG_SCHEMA = vol.Schema(
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Mailgun component."""
-    if DOMAIN not in config:
-        return True
-
-    hass.data[DOMAIN] = config[DOMAIN]
+    if DOMAIN in config:
+        hass.data[DOMAIN] = config[DOMAIN]
     return True
 
 
