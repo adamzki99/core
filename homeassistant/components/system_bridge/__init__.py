@@ -168,133 +168,134 @@ async def async_setup_entry(
         )
     )
 
-    if hass.services.has_service(DOMAIN, SERVICE_OPEN_URL):
-        return True
+    if not hass.services.has_service(DOMAIN, SERVICE_OPEN_URL):
 
-    def valid_device(device: str) -> str:
-        """Check device is valid."""
-        device_registry = dr.async_get(hass)
-        device_entry = device_registry.async_get(device)
-        if device_entry is not None:
-            try:
-                return next(
-                    entry.entry_id
-                    for entry in hass.config_entries.async_entries(DOMAIN)
-                    if entry.entry_id in device_entry.config_entries
-                )
-            except StopIteration as exception:
-                raise vol.Invalid from exception
-        raise vol.Invalid(f"Device {device} does not exist")
+        def valid_device(device: str) -> str:
+            """Check device is valid."""
+            device_registry = dr.async_get(hass)
+            device_entry = device_registry.async_get(device)
+            if device_entry is not None:
+                try:
+                    return next(
+                        entry.entry_id
+                        for entry in hass.config_entries.async_entries(DOMAIN)
+                        if entry.entry_id in device_entry.config_entries
+                    )
+                except StopIteration as exception:
+                    raise vol.Invalid from exception
+            raise vol.Invalid(f"Device {device} does not exist")
 
-    async def handle_open_path(call: ServiceCall) -> None:
-        """Handle the open path service call."""
-        _LOGGER.info("Open: %s", call.data)
-        coordinator: SystemBridgeDataUpdateCoordinator = hass.data[DOMAIN][
-            call.data[CONF_BRIDGE]
-        ]
-        await coordinator.websocket_client.open_path(
-            OpenPath(path=call.data[CONF_PATH])
+        async def handle_open_path(call: ServiceCall) -> None:
+            """Handle the open path service call."""
+            _LOGGER.info("Open: %s", call.data)
+            coordinator: SystemBridgeDataUpdateCoordinator = hass.data[DOMAIN][
+                call.data[CONF_BRIDGE]
+            ]
+            await coordinator.websocket_client.open_path(
+                OpenPath(path=call.data[CONF_PATH])
+            )
+
+        async def handle_power_command(call: ServiceCall) -> None:
+            """Handle the power command service call."""
+            _LOGGER.info("Power command: %s", call.data)
+            coordinator: SystemBridgeDataUpdateCoordinator = hass.data[DOMAIN][
+                call.data[CONF_BRIDGE]
+            ]
+            await getattr(
+                coordinator.websocket_client,
+                POWER_COMMAND_MAP[call.data[CONF_COMMAND]],
+            )()
+
+        async def handle_open_url(call: ServiceCall) -> None:
+            """Handle the open url service call."""
+            _LOGGER.info("Open: %s", call.data)
+            coordinator: SystemBridgeDataUpdateCoordinator = hass.data[DOMAIN][
+                call.data[CONF_BRIDGE]
+            ]
+            await coordinator.websocket_client.open_url(
+                OpenUrl(url=call.data[CONF_URL])
+            )
+
+        async def handle_send_keypress(call: ServiceCall) -> None:
+            """Handle the send_keypress service call."""
+            coordinator: SystemBridgeDataUpdateCoordinator = hass.data[DOMAIN][
+                call.data[CONF_BRIDGE]
+            ]
+            await coordinator.websocket_client.keyboard_keypress(
+                KeyboardKey(key=call.data[CONF_KEY])
+            )
+
+        async def handle_send_text(call: ServiceCall) -> None:
+            """Handle the send_keypress service call."""
+            coordinator: SystemBridgeDataUpdateCoordinator = hass.data[DOMAIN][
+                call.data[CONF_BRIDGE]
+            ]
+            await coordinator.websocket_client.keyboard_text(
+                KeyboardText(text=call.data[CONF_TEXT])
+            )
+
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_OPEN_PATH,
+            handle_open_path,
+            schema=vol.Schema(
+                {
+                    vol.Required(CONF_BRIDGE): valid_device,
+                    vol.Required(CONF_PATH): cv.string,
+                },
+            ),
         )
 
-    async def handle_power_command(call: ServiceCall) -> None:
-        """Handle the power command service call."""
-        _LOGGER.info("Power command: %s", call.data)
-        coordinator: SystemBridgeDataUpdateCoordinator = hass.data[DOMAIN][
-            call.data[CONF_BRIDGE]
-        ]
-        await getattr(
-            coordinator.websocket_client,
-            POWER_COMMAND_MAP[call.data[CONF_COMMAND]],
-        )()
-
-    async def handle_open_url(call: ServiceCall) -> None:
-        """Handle the open url service call."""
-        _LOGGER.info("Open: %s", call.data)
-        coordinator: SystemBridgeDataUpdateCoordinator = hass.data[DOMAIN][
-            call.data[CONF_BRIDGE]
-        ]
-        await coordinator.websocket_client.open_url(OpenUrl(url=call.data[CONF_URL]))
-
-    async def handle_send_keypress(call: ServiceCall) -> None:
-        """Handle the send_keypress service call."""
-        coordinator: SystemBridgeDataUpdateCoordinator = hass.data[DOMAIN][
-            call.data[CONF_BRIDGE]
-        ]
-        await coordinator.websocket_client.keyboard_keypress(
-            KeyboardKey(key=call.data[CONF_KEY])
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_POWER_COMMAND,
+            handle_power_command,
+            schema=vol.Schema(
+                {
+                    vol.Required(CONF_BRIDGE): valid_device,
+                    vol.Required(CONF_COMMAND): vol.In(POWER_COMMAND_MAP),
+                },
+            ),
         )
 
-    async def handle_send_text(call: ServiceCall) -> None:
-        """Handle the send_keypress service call."""
-        coordinator: SystemBridgeDataUpdateCoordinator = hass.data[DOMAIN][
-            call.data[CONF_BRIDGE]
-        ]
-        await coordinator.websocket_client.keyboard_text(
-            KeyboardText(text=call.data[CONF_TEXT])
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_OPEN_URL,
+            handle_open_url,
+            schema=vol.Schema(
+                {
+                    vol.Required(CONF_BRIDGE): valid_device,
+                    vol.Required(CONF_URL): cv.string,
+                },
+            ),
         )
 
-    hass.services.async_register(
-        DOMAIN,
-        SERVICE_OPEN_PATH,
-        handle_open_path,
-        schema=vol.Schema(
-            {
-                vol.Required(CONF_BRIDGE): valid_device,
-                vol.Required(CONF_PATH): cv.string,
-            },
-        ),
-    )
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_SEND_KEYPRESS,
+            handle_send_keypress,
+            schema=vol.Schema(
+                {
+                    vol.Required(CONF_BRIDGE): valid_device,
+                    vol.Required(CONF_KEY): cv.string,
+                },
+            ),
+        )
 
-    hass.services.async_register(
-        DOMAIN,
-        SERVICE_POWER_COMMAND,
-        handle_power_command,
-        schema=vol.Schema(
-            {
-                vol.Required(CONF_BRIDGE): valid_device,
-                vol.Required(CONF_COMMAND): vol.In(POWER_COMMAND_MAP),
-            },
-        ),
-    )
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_SEND_TEXT,
+            handle_send_text,
+            schema=vol.Schema(
+                {
+                    vol.Required(CONF_BRIDGE): valid_device,
+                    vol.Required(CONF_TEXT): cv.string,
+                },
+            ),
+        )
 
-    hass.services.async_register(
-        DOMAIN,
-        SERVICE_OPEN_URL,
-        handle_open_url,
-        schema=vol.Schema(
-            {
-                vol.Required(CONF_BRIDGE): valid_device,
-                vol.Required(CONF_URL): cv.string,
-            },
-        ),
-    )
-
-    hass.services.async_register(
-        DOMAIN,
-        SERVICE_SEND_KEYPRESS,
-        handle_send_keypress,
-        schema=vol.Schema(
-            {
-                vol.Required(CONF_BRIDGE): valid_device,
-                vol.Required(CONF_KEY): cv.string,
-            },
-        ),
-    )
-
-    hass.services.async_register(
-        DOMAIN,
-        SERVICE_SEND_TEXT,
-        handle_send_text,
-        schema=vol.Schema(
-            {
-                vol.Required(CONF_BRIDGE): valid_device,
-                vol.Required(CONF_TEXT): cv.string,
-            },
-        ),
-    )
-
-    # Reload entry when its updated.
-    entry.async_on_unload(entry.add_update_listener(async_reload_entry))
+        # Reload entry when its updated.
+        entry.async_on_unload(entry.add_update_listener(async_reload_entry))
 
     return True
 
