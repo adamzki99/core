@@ -42,32 +42,30 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Smappee component."""
     hass.data[DOMAIN] = {}
 
-    if DOMAIN not in config:
-        return True
+    if DOMAIN in config:
+        client_id = config[DOMAIN][CONF_CLIENT_ID]
+        hass.data[DOMAIN][client_id] = {}
 
-    client_id = config[DOMAIN][CONF_CLIENT_ID]
-    hass.data[DOMAIN][client_id] = {}
+        # decide platform
+        platform = "PRODUCTION"
+        if client_id == "homeassistant_f2":
+            platform = "ACCEPTANCE"
+        elif client_id == "homeassistant_f3":
+            platform = "DEVELOPMENT"
 
-    # decide platform
-    platform = "PRODUCTION"
-    if client_id == "homeassistant_f2":
-        platform = "ACCEPTANCE"
-    elif client_id == "homeassistant_f3":
-        platform = "DEVELOPMENT"
+        hass.data[DOMAIN][CONF_PLATFORM] = platform
 
-    hass.data[DOMAIN][CONF_PLATFORM] = platform
-
-    config_flow.SmappeeFlowHandler.async_register_implementation(
-        hass,
-        config_entry_oauth2_flow.LocalOAuth2Implementation(
+        config_flow.SmappeeFlowHandler.async_register_implementation(
             hass,
-            DOMAIN,
-            config[DOMAIN][CONF_CLIENT_ID],
-            config[DOMAIN][CONF_CLIENT_SECRET],
-            AUTHORIZE_URL[platform],
-            TOKEN_URL[platform],
-        ),
-    )
+            config_entry_oauth2_flow.LocalOAuth2Implementation(
+                hass,
+                DOMAIN,
+                config[DOMAIN][CONF_CLIENT_ID],
+                config[DOMAIN][CONF_CLIENT_SECRET],
+                AUTHORIZE_URL[platform],
+                TOKEN_URL[platform],
+            ),
+        )
 
     return True
 
