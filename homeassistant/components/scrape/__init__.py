@@ -59,31 +59,29 @@ CONFIG_SCHEMA = vol.Schema(
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up Scrape from yaml config."""
     scrape_config: list[ConfigType] | None
-    if not (scrape_config := config.get(DOMAIN)):
-        return True
-
-    load_coroutines: list[Coroutine[Any, Any, None]] = []
-    for resource_config in scrape_config:
-        rest = create_rest_data_from_config(hass, resource_config)
-        scan_interval: timedelta = resource_config.get(
-            CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
-        )
-        coordinator = ScrapeCoordinator(hass, rest, scan_interval)
-
-        sensors: list[ConfigType] = resource_config.get(SENSOR_DOMAIN, [])
-        if sensors:
-            load_coroutines.append(
-                discovery.async_load_platform(
-                    hass,
-                    Platform.SENSOR,
-                    DOMAIN,
-                    {"coordinator": coordinator, "configs": sensors},
-                    config,
-                )
+    if scrape_config := config.get(DOMAIN):
+        load_coroutines: list[Coroutine[Any, Any, None]] = []
+        for resource_config in scrape_config:
+            rest = create_rest_data_from_config(hass, resource_config)
+            scan_interval: timedelta = resource_config.get(
+                CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
             )
+            coordinator = ScrapeCoordinator(hass, rest, scan_interval)
 
-    if load_coroutines:
-        await asyncio.gather(*load_coroutines)
+            sensors: list[ConfigType] = resource_config.get(SENSOR_DOMAIN, [])
+            if sensors:
+                load_coroutines.append(
+                    discovery.async_load_platform(
+                        hass,
+                        Platform.SENSOR,
+                        DOMAIN,
+                        {"coordinator": coordinator, "configs": sensors},
+                        config,
+                    )
+                )
+
+        if load_coroutines:
+            await asyncio.gather(*load_coroutines)
 
     return True
 
