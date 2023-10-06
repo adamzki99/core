@@ -101,18 +101,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Check EZVIZ cloud account entity is present, reload cloud account entities for camera entity change to take effect.
     # Cameras are accessed via local RTSP stream with unique credentials per camera.
     # Separate camera entities allow for credential changes per camera.
+    return_value = False
+
     if sensor_type == ATTR_TYPE_CAMERA and hass.data[DOMAIN]:
         for item in hass.config_entries.async_entries(domain=DOMAIN):
             if item.data.get(CONF_TYPE) == ATTR_TYPE_CLOUD:
                 _LOGGER.info("Reload Ezviz main account with camera entry")
                 await hass.config_entries.async_reload(item.entry_id)
-                return True
+                return_value = True
 
-    await hass.config_entries.async_forward_entry_setups(
-        entry, PLATFORMS_BY_TYPE[sensor_type]
-    )
+    if return_value is False:
+        await hass.config_entries.async_forward_entry_setups(
+            entry, PLATFORMS_BY_TYPE[sensor_type]
+        )
 
-    return True
+    return return_value
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
