@@ -23,16 +23,15 @@ PLATFORMS = [Platform.MEDIA_PLAYER]
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up songpal environment."""
-    if (conf := config.get(DOMAIN)) is None:
-        return True
-    for config_entry in conf:
-        hass.async_create_task(
-            hass.config_entries.flow.async_init(
-                DOMAIN,
-                context={"source": SOURCE_IMPORT},
-                data=config_entry,
-            ),
-        )
+    if (conf := config.get(DOMAIN)) is not None:
+        for config_entry in conf:
+            hass.async_create_task(
+                hass.config_entries.flow.async_init(
+                    DOMAIN,
+                    context={"source": SOURCE_IMPORT},
+                    data=config_entry,
+                ),
+            )
     return True
 
 
