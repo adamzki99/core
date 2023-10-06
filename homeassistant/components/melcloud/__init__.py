@@ -48,18 +48,16 @@ CONFIG_SCHEMA = vol.Schema(
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Establish connection with MELCloud."""
-    if DOMAIN not in config:
-        return True
-
-    username = config[DOMAIN][CONF_USERNAME]
-    token = config[DOMAIN][CONF_TOKEN]
-    hass.async_create_task(
-        hass.config_entries.flow.async_init(
-            DOMAIN,
-            context={"source": SOURCE_IMPORT},
-            data={CONF_USERNAME: username, CONF_TOKEN: token},
+    if DOMAIN in config:
+        username = config[DOMAIN][CONF_USERNAME]
+        token = config[DOMAIN][CONF_TOKEN]
+        hass.async_create_task(
+            hass.config_entries.flow.async_init(
+                DOMAIN,
+                context={"source": SOURCE_IMPORT},
+                data={CONF_USERNAME: username, CONF_TOKEN: token},
+            )
         )
-    )
     return True
 
 
