@@ -135,36 +135,34 @@ async def async_register_panel(
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Initialize custom panel."""
-    if DOMAIN not in config:
-        return True
+    if DOMAIN in config:
+        for panel in config[DOMAIN]:
+            name = panel[CONF_COMPONENT_NAME]
 
-    for panel in config[DOMAIN]:
-        name = panel[CONF_COMPONENT_NAME]
+            kwargs = {
+                "webcomponent_name": panel[CONF_COMPONENT_NAME],
+                "frontend_url_path": panel.get(CONF_URL_PATH, name),
+                "sidebar_title": panel.get(CONF_SIDEBAR_TITLE),
+                "sidebar_icon": panel.get(CONF_SIDEBAR_ICON),
+                "config": panel.get(CONF_CONFIG),
+                "trust_external": panel[CONF_TRUST_EXTERNAL_SCRIPT],
+                "embed_iframe": panel[CONF_EMBED_IFRAME],
+                "require_admin": panel[CONF_REQUIRE_ADMIN],
+            }
 
-        kwargs = {
-            "webcomponent_name": panel[CONF_COMPONENT_NAME],
-            "frontend_url_path": panel.get(CONF_URL_PATH, name),
-            "sidebar_title": panel.get(CONF_SIDEBAR_TITLE),
-            "sidebar_icon": panel.get(CONF_SIDEBAR_ICON),
-            "config": panel.get(CONF_CONFIG),
-            "trust_external": panel[CONF_TRUST_EXTERNAL_SCRIPT],
-            "embed_iframe": panel[CONF_EMBED_IFRAME],
-            "require_admin": panel[CONF_REQUIRE_ADMIN],
-        }
+            if CONF_JS_URL in panel:
+                kwargs["js_url"] = panel[CONF_JS_URL]
 
-        if CONF_JS_URL in panel:
-            kwargs["js_url"] = panel[CONF_JS_URL]
+            if CONF_MODULE_URL in panel:
+                kwargs["module_url"] = panel[CONF_MODULE_URL]
 
-        if CONF_MODULE_URL in panel:
-            kwargs["module_url"] = panel[CONF_MODULE_URL]
-
-        try:
-            await async_register_panel(hass, **kwargs)
-        except ValueError as err:
-            _LOGGER.error(
-                "Unable to register panel %s: %s",
-                panel.get(CONF_SIDEBAR_TITLE, name),
-                err,
-            )
+            try:
+                await async_register_panel(hass, **kwargs)
+            except ValueError as err:
+                _LOGGER.error(
+                    "Unable to register panel %s: %s",
+                    panel.get(CONF_SIDEBAR_TITLE, name),
+                    err,
+                )
 
     return True
