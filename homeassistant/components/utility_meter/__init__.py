@@ -129,56 +129,54 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         vol.Schema({ATTR_ENTITY_ID: vol.All(cv.ensure_list, [cv.entity_id])}),
     )
 
-    if DOMAIN not in config:
-        return True
+    if DOMAIN in config:
+        for meter, conf in config[DOMAIN].items():
+            _LOGGER.debug("Setup %s.%s", DOMAIN, meter)
 
-    for meter, conf in config[DOMAIN].items():
-        _LOGGER.debug("Setup %s.%s", DOMAIN, meter)
+            hass.data[DATA_UTILITY][meter] = conf
+            hass.data[DATA_UTILITY][meter][DATA_TARIFF_SENSORS] = []
 
-        hass.data[DATA_UTILITY][meter] = conf
-        hass.data[DATA_UTILITY][meter][DATA_TARIFF_SENSORS] = []
-
-        if not conf[CONF_TARIFFS]:
-            # only one entity is required
-            hass.async_create_task(
-                discovery.async_load_platform(
-                    hass,
-                    SENSOR_DOMAIN,
-                    DOMAIN,
-                    {meter: {CONF_METER: meter}},
-                    config,
+            if not conf[CONF_TARIFFS]:
+                # only one entity is required
+                hass.async_create_task(
+                    discovery.async_load_platform(
+                        hass,
+                        SENSOR_DOMAIN,
+                        DOMAIN,
+                        {meter: {CONF_METER: meter}},
+                        config,
+                    )
                 )
-            )
-        else:
-            # create tariff selection
-            hass.async_create_task(
-                discovery.async_load_platform(
-                    hass,
-                    SELECT_DOMAIN,
-                    DOMAIN,
-                    {CONF_METER: meter, CONF_TARIFFS: conf[CONF_TARIFFS]},
-                    config,
+            else:
+                # create tariff selection
+                hass.async_create_task(
+                    discovery.async_load_platform(
+                        hass,
+                        SELECT_DOMAIN,
+                        DOMAIN,
+                        {CONF_METER: meter, CONF_TARIFFS: conf[CONF_TARIFFS]},
+                        config,
+                    )
                 )
-            )
 
-            hass.data[DATA_UTILITY][meter][CONF_TARIFF_ENTITY] = "{}.{}".format(
-                SELECT_DOMAIN, meter
-            )
-
-            # add one meter for each tariff
-            tariff_confs = {}
-            for tariff in conf[CONF_TARIFFS]:
-                name = f"{meter} {tariff}"
-                tariff_confs[name] = {
-                    CONF_METER: meter,
-                    CONF_TARIFF: tariff,
-                }
-
-            hass.async_create_task(
-                discovery.async_load_platform(
-                    hass, SENSOR_DOMAIN, DOMAIN, tariff_confs, config
+                hass.data[DATA_UTILITY][meter][CONF_TARIFF_ENTITY] = "{}.{}".format(
+                    SELECT_DOMAIN, meter
                 )
-            )
+
+                # add one meter for each tariff
+                tariff_confs = {}
+                for tariff in conf[CONF_TARIFFS]:
+                    name = f"{meter} {tariff}"
+                    tariff_confs[name] = {
+                        CONF_METER: meter,
+                        CONF_TARIFF: tariff,
+                    }
+
+                hass.async_create_task(
+                    discovery.async_load_platform(
+                        hass, SENSOR_DOMAIN, DOMAIN, tariff_confs, config
+                    )
+                )
 
     return True
 
