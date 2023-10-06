@@ -59,14 +59,11 @@ CONFIG_SCHEMA = vol.Schema(
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Generic Hygrostat component."""
-    if DOMAIN not in config:
-        return True
-
-    for hygrostat_conf in config[DOMAIN]:
-        hass.async_create_task(
-            discovery.async_load_platform(
-                hass, Platform.HUMIDIFIER, DOMAIN, hygrostat_conf, config
+    if DOMAIN in config:
+        for hygrostat_conf in config[DOMAIN]:
+            hass.async_create_task(
+                discovery.async_load_platform(
+                    hass, Platform.HUMIDIFIER, DOMAIN, hygrostat_conf, config
+                )
             )
-        )
-
     return True
