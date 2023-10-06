@@ -61,29 +61,27 @@ CONFIG_SCHEMA = vol.Schema(
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the GeoNet NZ Quakes component."""
-    if DOMAIN not in config:
-        return True
+    if DOMAIN in config:
+        conf = config[DOMAIN]
+        latitude = conf.get(CONF_LATITUDE, hass.config.latitude)
+        longitude = conf.get(CONF_LONGITUDE, hass.config.longitude)
+        mmi = conf[CONF_MMI]
+        scan_interval = conf[CONF_SCAN_INTERVAL]
 
-    conf = config[DOMAIN]
-    latitude = conf.get(CONF_LATITUDE, hass.config.latitude)
-    longitude = conf.get(CONF_LONGITUDE, hass.config.longitude)
-    mmi = conf[CONF_MMI]
-    scan_interval = conf[CONF_SCAN_INTERVAL]
-
-    hass.async_create_task(
-        hass.config_entries.flow.async_init(
-            DOMAIN,
-            context={"source": SOURCE_IMPORT},
-            data={
-                CONF_LATITUDE: latitude,
-                CONF_LONGITUDE: longitude,
-                CONF_RADIUS: conf[CONF_RADIUS],
-                CONF_MINIMUM_MAGNITUDE: conf[CONF_MINIMUM_MAGNITUDE],
-                CONF_MMI: mmi,
-                CONF_SCAN_INTERVAL: scan_interval,
-            },
+        hass.async_create_task(
+            hass.config_entries.flow.async_init(
+                DOMAIN,
+                context={"source": SOURCE_IMPORT},
+                data={
+                    CONF_LATITUDE: latitude,
+                    CONF_LONGITUDE: longitude,
+                    CONF_RADIUS: conf[CONF_RADIUS],
+                    CONF_MINIMUM_MAGNITUDE: conf[CONF_MINIMUM_MAGNITUDE],
+                    CONF_MMI: mmi,
+                    CONF_SCAN_INTERVAL: scan_interval,
+                },
+            )
         )
-    )
 
     return True
 
