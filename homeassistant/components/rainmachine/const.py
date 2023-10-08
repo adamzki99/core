@@ -19,3 +19,6 @@ DATA_ZONES = "zones"
 
 DEFAULT_PORT = 8080
 DEFAULT_ZONE_RUN = 60 * 10
+
+ICON_WATER_PUMP = "mdi:water-pump"
+ICON_PIPE_LEAK = "mdi:pipe-leak"
