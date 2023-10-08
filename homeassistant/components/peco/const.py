@@ -17,3 +17,4 @@ CONFIG_FLOW_COUNTIES: Final = [{county: county.capitalize()} for county in COUNT
 SCAN_INTERVAL: Final = 9
 CONF_COUNTY: Final = "county"
 ATTR_CONTENT: Final = "content"
+ICONS: dict[str, str] = {"plug-off": "mdi:power-plug-off", "alert": "mdi:alert"}

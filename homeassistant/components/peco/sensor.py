@@ -21,7 +21,7 @@ from homeassistant.helpers.update_coordinator import (
 )
 
 from . import PECOCoordinatorData
-from .const import ATTR_CONTENT, CONF_COUNTY, DOMAIN
+from .const import ATTR_CONTENT, CONF_COUNTY, DOMAIN, ICONS
 
 
 @dataclass
@@ -46,7 +46,7 @@ SENSOR_LIST: tuple[PECOSensorEntityDescription, ...] = (
         translation_key="customers_out",
         value_fn=lambda data: int(data.outages.customers_out),
         attribute_fn=lambda data: {},
-        icon="mdi:power-plug-off",
+        icon=ICONS.get("plug-off"),
         state_class=SensorStateClass.MEASUREMENT,
     ),
     PECOSensorEntityDescription(
@@ -55,7 +55,7 @@ SENSOR_LIST: tuple[PECOSensorEntityDescription, ...] = (
         native_unit_of_measurement=PERCENTAGE,
         value_fn=lambda data: int(data.outages.percent_customers_out),
         attribute_fn=lambda data: {},
-        icon="mdi:power-plug-off",
+        icon=ICONS.get("plug-off"),
         state_class=SensorStateClass.MEASUREMENT,
     ),
     PECOSensorEntityDescription(
@@ -63,7 +63,7 @@ SENSOR_LIST: tuple[PECOSensorEntityDescription, ...] = (
         translation_key="outage_count",
         value_fn=lambda data: int(data.outages.outage_count),
         attribute_fn=lambda data: {},
-        icon="mdi:power-plug-off",
+        icon=ICONS.get("plug-off"),
         state_class=SensorStateClass.MEASUREMENT,
     ),
     PECOSensorEntityDescription(
@@ -71,7 +71,7 @@ SENSOR_LIST: tuple[PECOSensorEntityDescription, ...] = (
         translation_key="customers_served",
         value_fn=lambda data: int(data.outages.customers_served),
         attribute_fn=lambda data: {},
-        icon="mdi:power-plug-off",
+        icon=ICONS.get("plug-off"),
         state_class=SensorStateClass.MEASUREMENT,
     ),
     PECOSensorEntityDescription(
@@ -79,7 +79,7 @@ SENSOR_LIST: tuple[PECOSensorEntityDescription, ...] = (
         translation_key="map_alert",
         value_fn=lambda data: str(data.alerts.alert_title),
         attribute_fn=lambda data: {ATTR_CONTENT: data.alerts.alert_content},
-        icon="mdi:alert",
+        icon=ICONS.get("alert"),
     ),
 )
 
