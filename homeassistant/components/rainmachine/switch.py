@@ -29,6 +29,7 @@ from .const import (
     DATA_ZONES,
     DEFAULT_ZONE_RUN,
     DOMAIN,
+    NOT_SET,
 )
 from .model import (
     RainMachineEntityDescription,
@@ -61,7 +62,7 @@ ATTR_ZONES = "zones"
 DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 SOIL_TYPE_MAP = {
-    0: "Not Set",
+    0: NOT_SET,
     1: "Clay Loam",
     2: "Silty Clay",
     3: "Clay",
@@ -76,7 +77,7 @@ SOIL_TYPE_MAP = {
 }
 
 SLOPE_TYPE_MAP = {
-    0: "Not Set",
+    0: NOT_SET,
     1: "Flat",
     2: "Moderate",
     3: "High",
@@ -85,7 +86,7 @@ SLOPE_TYPE_MAP = {
 }
 
 SPRINKLER_TYPE_MAP = {
-    0: "Not Set",
+    0: NOT_SET,
     1: "Popup Spray",
     2: "Rotors Low Rate",
     3: "Surface Drip",
@@ -94,11 +95,11 @@ SPRINKLER_TYPE_MAP = {
     99: "Other",
 }
 
-SUN_EXPOSURE_MAP = {0: "Not Set", 1: "Full Sun", 2: "Partial Shade", 3: "Full Shade"}
+SUN_EXPOSURE_MAP = {0: NOT_SET, 1: "Full Sun", 2: "Partial Shade", 3: "Full Shade"}
 
 VEGETATION_MAP = {
-    0: "Not Set",
-    1: "Not Set",
+    0: NOT_SET,
+    1: NOT_SET,
     2: "Cool Season Grass",
     3: "Fruit Trees",
     4: "Flowers",
