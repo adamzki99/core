@@ -19,13 +19,11 @@ from . import (
     RfxtrxCommandEntity,
     async_setup_platform_entry,
 )
-from .const import CONF_OFF_DELAY
+from .const import CONF_OFF_DELAY, SENSOR_STATUS
 
 SECURITY_PANIC_ON = "Panic"
 SECURITY_PANIC_OFF = "End Panic"
 SECURITY_PANIC_ALL = {SECURITY_PANIC_ON, SECURITY_PANIC_OFF}
-
-SENSOR_STATUS = "Sensor Status"
 
 
 def supported(event: rfxtrxmod.RFXtrxEvent) -> bool:
