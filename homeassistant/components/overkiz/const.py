@@ -157,3 +157,10 @@ OVERKIZ_UNIT_TO_HA: dict[str, str] = {
     MeasuredValueType.VOLUME_IN_GALLON: UnitOfVolume.GALLONS,
     MeasuredValueType.VOLUME_IN_LITER: UnitOfVolume.LITERS,
 }
+
+ICONS: dict[str, str] = {
+    "star": "mdi:star",
+    "human-greeting": "mdi:human-greeting-variant",
+    "bell": "mdi:bell-ring",
+    "sync": "mdi:sync",
+}

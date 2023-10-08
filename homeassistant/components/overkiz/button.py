@@ -13,7 +13,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import HomeAssistantOverkizData
-from .const import DOMAIN, IGNORED_OVERKIZ_DEVICES
+from .const import DOMAIN, ICONS, IGNORED_OVERKIZ_DEVICES
 from .entity import OverkizDescriptiveEntity
 
 
@@ -29,47 +29,47 @@ BUTTON_DESCRIPTIONS: list[OverkizButtonDescription] = [
     OverkizButtonDescription(
         key="my",
         name="My position",
-        icon="mdi:star",
+        icon=ICONS.get("star"),
     ),
     # Identify
     OverkizButtonDescription(
         key="identify",  # startIdentify and identify are reversed... Swap this when fixed in API.
         name="Start identify",
-        icon="mdi:human-greeting-variant",
+        icon=ICONS.get("human-greeting"),
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_registry_enabled_default=False,
     ),
     OverkizButtonDescription(
         key="stopIdentify",
         name="Stop identify",
-        icon="mdi:human-greeting-variant",
+        icon=ICONS.get("human-greeting"),
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_registry_enabled_default=False,
     ),
     OverkizButtonDescription(
         key="startIdentify",  # startIdentify and identify are reversed... Swap this when fixed in API.
         name="Identify",
-        icon="mdi:human-greeting-variant",
+        icon=ICONS.get("human-greeting"),
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     # RTDIndoorSiren / RTDOutdoorSiren
-    OverkizButtonDescription(key="dingDong", name="Ding dong", icon="mdi:bell-ring"),
-    OverkizButtonDescription(key="bip", name="Bip", icon="mdi:bell-ring"),
+    OverkizButtonDescription(key="dingDong", name="Ding dong", icon=ICONS.get("bell")),
+    OverkizButtonDescription(key="bip", name="Bip", icon=ICONS.get("bell")),
     OverkizButtonDescription(
-        key="fastBipSequence", name="Fast bip sequence", icon="mdi:bell-ring"
+        key="fastBipSequence", name="Fast bip sequence", icon=ICONS.get("bell")
     ),
-    OverkizButtonDescription(key="ring", name="Ring", icon="mdi:bell-ring"),
+    OverkizButtonDescription(key="ring", name="Ring", icon=ICONS.get("bell")),
     # DynamicScreen (ogp:blind) uses goToAlias (id 1: favorite1) instead of 'my'
     OverkizButtonDescription(
         key="goToAlias",
         press_args="1",
         name="My position",
-        icon="mdi:star",
+        icon=ICONS.get("star"),
     ),
     OverkizButtonDescription(
         key=OverkizCommand.CYCLE,
         name="Toggle",
-        icon="mdi:sync",
+        icon=ICONS.get("sync"),
     ),
 ]
 
