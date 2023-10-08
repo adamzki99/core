@@ -19,7 +19,7 @@ from . import (
     RfxtrxCommandEntity,
     async_setup_platform_entry,
 )
-from .const import CONF_OFF_DELAY
+from .const import CONF_OFF_DELAY, SENSOR_STATUS
 
 SECURITY_PANIC_ON = "Panic"
 SECURITY_PANIC_OFF = "End Panic"
@@ -36,7 +36,7 @@ def supported(event: rfxtrxmod.RFXtrxEvent) -> bool:
     if isinstance(device, rfxtrxmod.SecurityDevice) and isinstance(
         event, rfxtrxmod.SensorEvent
     ):
-        if event.values["Sensor Status"] in SECURITY_PANIC_ALL:
+        if event.values[SENSOR_STATUS] in SECURITY_PANIC_ALL:
             return True
 
     return False
@@ -76,7 +76,7 @@ async def async_setup_entry(
         if isinstance(device, rfxtrxmod.SecurityDevice) and isinstance(
             event, rfxtrxmod.SensorEvent
         ):
-            if event.values["Sensor Status"] in SECURITY_PANIC_ALL:
+            if event.values[SENSOR_STATUS] in SECURITY_PANIC_ALL:
                 return [
                     RfxtrxSecurityPanic(
                         event.device,
@@ -230,7 +230,7 @@ class RfxtrxSecurityPanic(RfxtrxCommandEntity, SirenEntity, RfxtrxOffDelayMixin)
         """Apply a received event."""
         super()._apply_event(event)
 
-        status = event.values.get("Sensor Status")
+        status = event.values.get(SENSOR_STATUS)
 
         if status == SECURITY_PANIC_ON:
             self._cancel_timeout()
