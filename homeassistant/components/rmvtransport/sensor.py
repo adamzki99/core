@@ -37,16 +37,18 @@ DEFAULT_NAME = "RMV Journey"
 
 VALID_PRODUCTS = ["U-Bahn", "Tram", "Bus", "S", "RB", "RE", "EC", "IC", "ICE"]
 
+MDI = "mdi:train"
+
 ICONS = {
     "U-Bahn": "mdi:subway",
     "Tram": "mdi:tram",
     "Bus": "mdi:bus",
-    "S": "mdi:train",
-    "RB": "mdi:train",
-    "RE": "mdi:train",
-    "EC": "mdi:train",
-    "IC": "mdi:train",
-    "ICE": "mdi:train",
+    "S": MDI,
+    "RB": MDI,
+    "RE": MDI,
+    "EC": MDI,
+    "IC": MDI,
+    "ICE": MDI,
     "SEV": "mdi:checkbox-blank-circle-outline",
     None: "mdi:clock",
 }
