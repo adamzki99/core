@@ -2,3 +2,4 @@
 
 DOMAIN = "poolsense"
 ATTRIBUTION = "PoolSense Data"
+POOL_ICON = "mdi:pool"

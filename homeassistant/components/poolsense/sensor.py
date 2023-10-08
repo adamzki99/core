@@ -17,19 +17,19 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import PoolSenseEntity
-from .const import DOMAIN
+from .const import DOMAIN, POOL_ICON
 
 SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
         key="Chlorine",
         translation_key="chlorine",
         native_unit_of_measurement=UnitOfElectricPotential.MILLIVOLT,
-        icon="mdi:pool",
+        icon=POOL_ICON,
     ),
     SensorEntityDescription(
         key="pH",
         translation_key="ph",
-        icon="mdi:pool",
+        icon=POOL_ICON,
     ),
     SensorEntityDescription(
         key="Battery",
@@ -52,23 +52,23 @@ SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
         key="Chlorine High",
         translation_key="chlorine_high",
         native_unit_of_measurement=UnitOfElectricPotential.MILLIVOLT,
-        icon="mdi:pool",
+        icon=POOL_ICON,
     ),
     SensorEntityDescription(
         key="Chlorine Low",
         translation_key="chlorine_low",
         native_unit_of_measurement=UnitOfElectricPotential.MILLIVOLT,
-        icon="mdi:pool",
+        icon=POOL_ICON,
     ),
     SensorEntityDescription(
         key="pH High",
         translation_key="ph_high",
-        icon="mdi:pool",
+        icon=POOL_ICON,
     ),
     SensorEntityDescription(
         key="pH Low",
         translation_key="ph_low",
-        icon="mdi:pool",
+        icon=POOL_ICON,
     ),
 )
 
