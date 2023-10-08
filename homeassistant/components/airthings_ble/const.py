@@ -7,3 +7,5 @@ VOLUME_BECQUEREL = "Bq/m³"
 VOLUME_PICOCURIE = "pCi/L"
 
 DEFAULT_SCAN_INTERVAL = 300
+
+ICONS: dict[str, str] = {"radioactive": "mdi:radioactive", "cloud": "mdi:cloud"}
