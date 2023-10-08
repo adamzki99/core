@@ -19,3 +19,5 @@ MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=5)
 
 DATA_KEY_API = "api"
 DATA_KEY_COORDINATOR = "coordinator"
+
+ICON_COMMENT_QUESTION_OUTLINE = "mdi:comment-question-outline"

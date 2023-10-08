@@ -12,7 +12,12 @@ from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from . import PiHoleEntity
-from .const import DATA_KEY_API, DATA_KEY_COORDINATOR, DOMAIN as PIHOLE_DOMAIN
+from .const import (
+    DATA_KEY_API,
+    DATA_KEY_COORDINATOR,
+    DOMAIN as PIHOLE_DOMAIN,
+    ICON_COMMENT_QUESTION_OUTLINE,
+)
 
 SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
@@ -37,7 +42,7 @@ SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
         key="dns_queries_today",
         translation_key="dns_queries_today",
         native_unit_of_measurement="queries",
-        icon="mdi:comment-question-outline",
+        icon=ICON_COMMENT_QUESTION_OUTLINE,
     ),
     SensorEntityDescription(
         key="domains_being_blocked",
@@ -49,13 +54,13 @@ SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
         key="queries_cached",
         translation_key="queries_cached",
         native_unit_of_measurement="queries",
-        icon="mdi:comment-question-outline",
+        icon=ICON_COMMENT_QUESTION_OUTLINE,
     ),
     SensorEntityDescription(
         key="queries_forwarded",
         translation_key="queries_forwarded",
         native_unit_of_measurement="queries",
-        icon="mdi:comment-question-outline",
+        icon=ICON_COMMENT_QUESTION_OUTLINE,
     ),
     SensorEntityDescription(
         key="unique_clients",
