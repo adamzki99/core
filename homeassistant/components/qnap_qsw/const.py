@@ -15,3 +15,9 @@ QSW_COORD_FW: Final = "coordinator-firmware"
 QSW_REBOOT = "reboot"
 QSW_TIMEOUT_SEC: Final = 25
 QSW_UPDATE: Final = "update"
+
+ICONS: dict[str, str] = {
+    "download-network": "mdi:download-network",
+    "close-network": "mdi:close-network",
+    "upload-network": "mdi:upload-network",
+}

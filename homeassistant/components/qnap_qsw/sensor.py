@@ -45,7 +45,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import UNDEFINED
 
-from .const import ATTR_MAX, DOMAIN, QSW_COORD_DATA, RPM
+from .const import ATTR_MAX, DOMAIN, ICONS, QSW_COORD_DATA, RPM
 from .coordinator import QswDataCoordinator
 from .entity import QswEntityDescription, QswEntityType, QswSensorEntity
 
@@ -91,7 +91,7 @@ SENSOR_TYPES: Final[tuple[QswSensorEntityDescription, ...]] = (
         entity_registry_enabled_default=False,
         translation_key="rx",
         device_class=SensorDeviceClass.DATA_SIZE,
-        icon="mdi:download-network",
+        icon=ICONS.get("download-network"),
         key=QSD_PORTS_STATISTICS,
         native_unit_of_measurement=UnitOfInformation.BYTES,
         state_class=SensorStateClass.TOTAL_INCREASING,
@@ -100,7 +100,7 @@ SENSOR_TYPES: Final[tuple[QswSensorEntityDescription, ...]] = (
     QswSensorEntityDescription(
         entity_registry_enabled_default=False,
         translation_key="rx_errors",
-        icon="mdi:close-network",
+        icon=ICONS.get("close-network"),
         key=QSD_PORTS_STATISTICS,
         entity_category=EntityCategory.DIAGNOSTIC,
         state_class=SensorStateClass.TOTAL_INCREASING,
@@ -110,7 +110,7 @@ SENSOR_TYPES: Final[tuple[QswSensorEntityDescription, ...]] = (
         entity_registry_enabled_default=False,
         translation_key="rx_speed",
         device_class=SensorDeviceClass.DATA_RATE,
-        icon="mdi:download-network",
+        icon=ICONS.get("download-network"),
         key=QSD_PORTS_STATISTICS,
         native_unit_of_measurement=UnitOfDataRate.BYTES_PER_SECOND,
         state_class=SensorStateClass.MEASUREMENT,
@@ -130,7 +130,7 @@ SENSOR_TYPES: Final[tuple[QswSensorEntityDescription, ...]] = (
         entity_registry_enabled_default=False,
         translation_key="tx",
         device_class=SensorDeviceClass.DATA_SIZE,
-        icon="mdi:upload-network",
+        icon=ICONS.get("upload-network"),
         key=QSD_PORTS_STATISTICS,
         native_unit_of_measurement=UnitOfInformation.BYTES,
         state_class=SensorStateClass.TOTAL_INCREASING,
@@ -140,7 +140,7 @@ SENSOR_TYPES: Final[tuple[QswSensorEntityDescription, ...]] = (
         entity_registry_enabled_default=False,
         translation_key="tx_speed",
         device_class=SensorDeviceClass.DATA_RATE,
-        icon="mdi:upload-network",
+        icon=ICONS.get("upload-network"),
         key=QSD_PORTS_STATISTICS,
         native_unit_of_measurement=UnitOfDataRate.BYTES_PER_SECOND,
         state_class=SensorStateClass.MEASUREMENT,
@@ -171,7 +171,7 @@ LACP_PORT_SENSOR_TYPES: Final[tuple[QswSensorEntityDescription, ...]] = (
     ),
     QswSensorEntityDescription(
         entity_registry_enabled_default=False,
-        icon="mdi:download-network",
+        icon=ICONS.get("download-network"),
         key=QSD_PORTS_STATISTICS,
         name="RX",
         native_unit_of_measurement=UnitOfInformation.BYTES,
@@ -181,7 +181,7 @@ LACP_PORT_SENSOR_TYPES: Final[tuple[QswSensorEntityDescription, ...]] = (
     ),
     QswSensorEntityDescription(
         entity_registry_enabled_default=False,
-        icon="mdi:close-network",
+        icon=ICONS.get("close-network"),
         key=QSD_PORTS_STATISTICS,
         entity_category=EntityCategory.DIAGNOSTIC,
         name="RX Errors",
@@ -192,7 +192,7 @@ LACP_PORT_SENSOR_TYPES: Final[tuple[QswSensorEntityDescription, ...]] = (
     QswSensorEntityDescription(
         device_class=SensorDeviceClass.DATA_RATE,
         entity_registry_enabled_default=False,
-        icon="mdi:download-network",
+        icon=ICONS.get("download-network"),
         key=QSD_PORTS_STATISTICS,
         name="RX Speed",
         native_unit_of_measurement=UnitOfDataRate.BYTES_PER_SECOND,
@@ -202,7 +202,7 @@ LACP_PORT_SENSOR_TYPES: Final[tuple[QswSensorEntityDescription, ...]] = (
     ),
     QswSensorEntityDescription(
         entity_registry_enabled_default=False,
-        icon="mdi:upload-network",
+        icon=ICONS.get("upload-network"),
         key=QSD_PORTS_STATISTICS,
         name="TX",
         native_unit_of_measurement=UnitOfInformation.BYTES,
@@ -213,7 +213,7 @@ LACP_PORT_SENSOR_TYPES: Final[tuple[QswSensorEntityDescription, ...]] = (
     QswSensorEntityDescription(
         device_class=SensorDeviceClass.DATA_RATE,
         entity_registry_enabled_default=False,
-        icon="mdi:upload-network",
+        icon=ICONS.get("upload-network"),
         key=QSD_PORTS_STATISTICS,
         name="TX Speed",
         native_unit_of_measurement=UnitOfDataRate.BYTES_PER_SECOND,
@@ -237,7 +237,7 @@ PORT_SENSOR_TYPES: Final[tuple[QswSensorEntityDescription, ...]] = (
     ),
     QswSensorEntityDescription(
         entity_registry_enabled_default=False,
-        icon="mdi:download-network",
+        icon=ICONS.get("download-network"),
         key=QSD_PORTS_STATISTICS,
         name="RX",
         native_unit_of_measurement=UnitOfInformation.BYTES,
@@ -247,7 +247,7 @@ PORT_SENSOR_TYPES: Final[tuple[QswSensorEntityDescription, ...]] = (
     ),
     QswSensorEntityDescription(
         entity_registry_enabled_default=False,
-        icon="mdi:close-network",
+        icon=ICONS.get("close-network"),
         key=QSD_PORTS_STATISTICS,
         entity_category=EntityCategory.DIAGNOSTIC,
         name="RX Errors",
@@ -258,7 +258,7 @@ PORT_SENSOR_TYPES: Final[tuple[QswSensorEntityDescription, ...]] = (
     QswSensorEntityDescription(
         device_class=SensorDeviceClass.DATA_RATE,
         entity_registry_enabled_default=False,
-        icon="mdi:download-network",
+        icon=ICONS.get("download-network"),
         key=QSD_PORTS_STATISTICS,
         name="RX Speed",
         native_unit_of_measurement=UnitOfDataRate.BYTES_PER_SECOND,
@@ -268,7 +268,7 @@ PORT_SENSOR_TYPES: Final[tuple[QswSensorEntityDescription, ...]] = (
     ),
     QswSensorEntityDescription(
         entity_registry_enabled_default=False,
-        icon="mdi:upload-network",
+        icon=ICONS.get("upload-network"),
         key=QSD_PORTS_STATISTICS,
         name="TX",
         native_unit_of_measurement=UnitOfInformation.BYTES,
@@ -279,7 +279,7 @@ PORT_SENSOR_TYPES: Final[tuple[QswSensorEntityDescription, ...]] = (
     QswSensorEntityDescription(
         device_class=SensorDeviceClass.DATA_RATE,
         entity_registry_enabled_default=False,
-        icon="mdi:upload-network",
+        icon=ICONS.get("upload-network"),
         key=QSD_PORTS_STATISTICS,
         name="TX Speed",
         native_unit_of_measurement=UnitOfDataRate.BYTES_PER_SECOND,
