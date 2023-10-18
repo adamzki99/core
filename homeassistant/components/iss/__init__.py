@@ -8,13 +8,22 @@ import logging
 import pyiss
 import requests
 from requests.exceptions import HTTPError
+from skyfield.api import load, wgs84
+from skyfield.sgp4lib import EarthSatellite
+from skyfield.timelib import Time
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .const import DOMAIN
+from .const import (
+    DOMAIN,
+    OBSERVER_LATITUDE,
+    OBSERVER_LONGITUDE,
+    SATELLITE_NAME,
+    STATIONS_URL,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -27,10 +36,37 @@ class IssData:
 
     number_of_people_in_space: int
     current_location: dict[str, str]
+    # next_pass: SatellitePass
 
 
-def update(iss: pyiss.ISS) -> IssData:
+class SatellitePass:
+    """Class representing the next pass of the satellite."""
+
+    next_rise: Time
+    next_culmination: Time
+    next_set: Time
+    altitude: int
+    azimuth: int
+
+
+def update(iss: pyiss.ISS, skyfield_satellite_object: EarthSatellite) -> IssData:
     """Retrieve data from the pyiss API."""
+    lima = wgs84.latlon(OBSERVER_LATITUDE, OBSERVER_LONGITUDE)
+    ts = load.timescale()
+    t0 = ts.now()
+    t1 = t0.utc_datetime() + timedelta(days=1)
+    t, events = skyfield_satellite_object.find_events(
+        lima, t0, t1, altitude_degrees=15.0
+    )
+    # for _ti, event in zip(t, events):
+    #     event_names[event]
+    # print(ti.utc_strftime("%Y %b %d %H:%M:%S"), name)
+
+    # ALBERT
+    # time_event_map = zip(t, events)
+    # time_event_zip_list = list(time_event_map)
+    # print(time_event_zip_list[0][0].utc_strftime('%Y %b %d %H:%M:%S'), event_names[time_event_zip_list[0][1]])
+
     return IssData(
         number_of_people_in_space=iss.number_of_people_in_space(),
         current_location=iss.current_location(),
@@ -41,11 +77,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up this integration using UI."""
     hass.data.setdefault(DOMAIN, {})
 
+    satellites = load.tle_file(STATIONS_URL, reload=True)
+
+    by_name = {sat.name: sat for sat in satellites}
+    satellite = by_name[SATELLITE_NAME]
+
     iss = pyiss.ISS()
 
     async def async_update() -> IssData:
         try:
-            return await hass.async_add_executor_job(update, iss)
+            return await hass.async_add_executor_job(update, (iss, satellite))
         except (HTTPError, requests.exceptions.ConnectionError) as ex:
             raise UpdateFailed("Unable to retrieve data") from ex
 

@@ -7,5 +7,5 @@
   "integration_type": "service",
   "iot_class": "cloud_polling",
   "loggers": ["pyiss"],
-  "requirements": ["pyiss==1.0.1"]
+  "requirements": ["pyiss==1.0.1", "skyfield==1.46"]
 }

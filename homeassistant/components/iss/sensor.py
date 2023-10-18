@@ -77,3 +77,9 @@ class IssSensor(CoordinatorEntity[DataUpdateCoordinator[IssData]], SensorEntity)
             attrs["lat"] = self.coordinator.data.current_location.get("latitude")
 
         return attrs
+
+
+# @property
+# def next_pass(self):
+
+#     return None
