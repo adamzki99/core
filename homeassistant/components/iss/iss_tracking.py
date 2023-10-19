@@ -43,7 +43,7 @@ def get_iss_position(
     Example:
         >>> position = get_iss_position(2023, 10, 19, 12, 0, 0)
         >>> print(position)
-        [407.5905950291096, -6595.392502717633, -2967.5875421636167]
+        [909.1196049923765, 6582.567813644977, 1413.764598899465]
     """
     satellite = load_satellites(SATELLITE_NAME)
 
