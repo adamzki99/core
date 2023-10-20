@@ -68,7 +68,7 @@ def update(iss: pyiss.ISS, skyfield_satellite_object: EarthSatellite) -> IssData
 
     # Define a time range
     ts = load.timescale()
-    t0 = ts.utc(now.year, now.month, now.day, 0)
+    t0 = ts.utc(now.year, now.month, now.day, now.hour, now.minute, now.second)
     t1 = ts.utc(tomorrow.year, tomorrow.month, tomorrow.day, 23, 59, 59)
 
     # Find ISS passes
