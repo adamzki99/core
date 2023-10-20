@@ -76,6 +76,10 @@ class IssSensor(CoordinatorEntity[DataUpdateCoordinator[IssData]], SensorEntity)
             attrs["pass_azimuth"] = self.coordinator.data.iss_passes.get("Azimuth")
             attrs["pass_altitude"] = self.coordinator.data.iss_passes.get("Altitude")
 
+            attrs["pass_time"] = self.coordinator.data.iss_passes.get("Datetime")
+            attrs["pass_azimuth"] = self.coordinator.data.iss_passes.get("Azimuth")
+            attrs["pass_altitude"] = self.coordinator.data.iss_passes.get("Altitude")
+
         else:
             attrs["long"] = self.coordinator.data.current_location.get("longitude")
             attrs["lat"] = self.coordinator.data.current_location.get("latitude")
