@@ -72,14 +72,20 @@ class IssSensor(CoordinatorEntity[DataUpdateCoordinator[IssData]], SensorEntity)
             attrs[ATTR_LATITUDE] = self.coordinator.data.current_location.get(
                 "latitude"
             )
+            attrs["pass_time"] = self.coordinator.data.iss_passes.get("Datetime")
+            attrs["pass_azimuth"] = self.coordinator.data.iss_passes.get("Azimuth")
+            attrs["pass_altitude"] = self.coordinator.data.iss_passes.get("Altitude")
+
         else:
             attrs["long"] = self.coordinator.data.current_location.get("longitude")
             attrs["lat"] = self.coordinator.data.current_location.get("latitude")
 
         return attrs
 
-
-# @property
-# def next_pass(self):
-
-#     return None
+    # @property
+    # def pass_info(self) -> dict[str, Any]:
+    #     pass_info = {}
+    #     pass_info["pass_time"] = self.coordinator.data.iss_passes.get("Datetime")
+    #     pass_info["azimuth"] = self.coordinator.data.iss_passes.get("Azimuth")
+    #     pass_info["altitude"] = self.coordinator.data.iss_passes.get("Altitude")
+    #     return pass_info
