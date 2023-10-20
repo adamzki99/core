@@ -15,3 +15,5 @@ OBSERVER_LONGITUDE = -84.10788623396293
 RISE_EVENT = "rise"
 CULMINATE_EVENT = "culminate"
 SET_EVENT = "set"
+
+CET_TIMEZONE = "Europe/Stockholm"
