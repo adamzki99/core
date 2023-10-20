@@ -85,11 +85,3 @@ class IssSensor(CoordinatorEntity[DataUpdateCoordinator[IssData]], SensorEntity)
             attrs["lat"] = self.coordinator.data.current_location.get("latitude")
 
         return attrs
-
-    # @property
-    # def pass_info(self) -> dict[str, Any]:
-    #     pass_info = {}
-    #     pass_info["pass_time"] = self.coordinator.data.iss_passes.get("Datetime")
-    #     pass_info["azimuth"] = self.coordinator.data.iss_passes.get("Azimuth")
-    #     pass_info["altitude"] = self.coordinator.data.iss_passes.get("Altitude")
-    #     return pass_info
