@@ -19,6 +19,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import (
+    ALTIUDE_DEGREES,
+    CET_TIMEZONE,
     DOMAIN,
     OBSERVER_LATITUDE,
     OBSERVER_LONGITUDE,
@@ -50,16 +52,18 @@ class SatellitePass:
     azimuth: int
 
 
-def update(iss: pyiss.ISS, skyfield_satellite_object: EarthSatellite) -> IssData:
-    """Retrieve data from the pyiss API."""
-    # Initialize return variables
-    pass_details: list = []
-    pass_count = 0
-    event_names = ["rise above 15", "culminate", "set below 15"]
+def define_time_range() -> tuple:
+    """Define a time range spanning from the current time to the end of the next day.
 
-    # Define observer information
-    observer_location = wgs84.latlon(OBSERVER_LATITUDE, OBSERVER_LONGITUDE)
-    observer_timezone = ZoneInfo("Europe/Stockholm")
+    Returns a tuple containing two datetime objects representing the start and end of the time range.
+
+    The time range starts from the current time and ends at 23:59:59 of the next day.
+
+    Returns:
+        tuple: A tuple containing two datetime objects.
+            The first element is the current time.
+            The second element is the end time of the next day.
+    """
 
     now = datetime.now()
     tomorrow = now.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(
@@ -67,14 +71,64 @@ def update(iss: pyiss.ISS, skyfield_satellite_object: EarthSatellite) -> IssData
     )
 
     # Define a time range
-    ts = load.timescale()
-    t0 = ts.utc(now.year, now.month, now.day, now.hour, now.minute, now.second)
-    t1 = ts.utc(tomorrow.year, tomorrow.month, tomorrow.day, 23, 59, 59)
+    local_timescale = load.timescale()
 
-    # Find ISS passes
-    t, events = skyfield_satellite_object.find_events(
-        observer_location, t0, t1, altitude_degrees=15
+    current_time = local_timescale.utc(
+        now.year, now.month, now.day, now.hour, now.minute, now.second
     )
+    next_day_time = local_timescale.utc(
+        tomorrow.year, tomorrow.month, tomorrow.day, 23, 59, 59
+    )
+
+    return current_time, next_day_time
+
+
+def define_observer_information(
+    observer_latitude: float, observer_longitude: float, timezone: str
+) -> tuple:
+    """Define observer information for a specific location and timezone.
+
+    Args:
+        observer_latitude (float): The latitude of the observer's location.
+        observer_longitude (float): The longitude of the observer's location.
+        timezone (str): The timezone identifier for the observer's location (e.g., 'America/New_York').
+
+    Returns:
+        tuple: A tuple containing two objects.
+            The first element is a WGS84 LatitudeLongitude object representing the observer's location.
+            The second element is a ZoneInfo object representing the observer's timezone.
+    """
+    return wgs84.latlon(observer_latitude, observer_longitude), ZoneInfo(timezone)
+
+
+def get_pass_details(
+    t: list,
+    events: list,
+    observer_timezone: ZoneInfo,
+    observer_location,
+    skyfield_satellite_object,
+) -> list:
+    """Get details about satellite passes for a specific observer.
+
+    Args:
+        t (list): A list of times for the satellite events.
+        events (list): A list of event codes corresponding to each time in 't'.
+        observer_timezone (ZoneInfo): The timezone information for the observer.
+        observer_location: The geographic location of the observer.
+        skyfield_satellite_object: A Skyfield satellite object representing the satellite of interest.
+
+    Returns:
+        list: A list of dictionaries containing pass details.
+    """
+
+    # Initialize local variables
+    pass_details: list = []
+    pass_count = 0
+    event_names = [
+        f"rise above {ALTIUDE_DEGREES}",
+        "culminate",
+        f"set below {ALTIUDE_DEGREES}",
+    ]
 
     # Iterate through passes and events
     for ti, event in zip(t, events):
@@ -90,6 +144,35 @@ def update(iss: pyiss.ISS, skyfield_satellite_object: EarthSatellite) -> IssData
             "Azimuth": az.degrees,
             "Altitude": alt.degrees,
         }
+
+    return pass_details
+
+
+def update(iss: pyiss.ISS, skyfield_satellite_object: EarthSatellite) -> IssData:
+    """Update and retrieve data from the pyiss API for the International Space Station (ISS).
+
+    Args:
+        iss (pyiss.ISS): An instance of the pyiss.ISS class for ISS data retrieval.
+        skyfield_satellite_object (EarthSatellite): A Skyfield EarthSatellite object representing the ISS.
+
+    Returns:
+        IssData: An IssData object containing updated information.
+    """
+
+    observer_location, observer_timezone = define_observer_information(
+        OBSERVER_LATITUDE, OBSERVER_LONGITUDE, CET_TIMEZONE
+    )
+
+    current_time, next_day_time = define_time_range()
+
+    # Find ISS passes
+    t, events = skyfield_satellite_object.find_events(
+        observer_location, current_time, next_day_time, altitude_degrees=ALTIUDE_DEGREES
+    )
+
+    pass_details = get_pass_details(
+        t, events, observer_timezone, observer_location, skyfield_satellite_object
+    )
 
     return IssData(
         number_of_people_in_space=iss.number_of_people_in_space(),

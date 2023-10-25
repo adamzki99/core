@@ -132,3 +132,6 @@ tmp_cache
 
 # python-language-server / Rope
 .ropeproject
+
+# ISS stations, downloaded when using the ISS integration
+stations.txt

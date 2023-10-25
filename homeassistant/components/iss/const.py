@@ -17,3 +17,6 @@ CULMINATE_EVENT = "culminate"
 SET_EVENT = "set"
 
 CET_TIMEZONE = "Europe/Stockholm"
+
+
+ALTIUDE_DEGREES = 15
