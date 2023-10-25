@@ -24,6 +24,7 @@ from .const import (
     DOMAIN,
     OBSERVER_LATITUDE,
     OBSERVER_LONGITUDE,
+    SATELLITE_NAME,
     STATIONS_URL,
 )
 
@@ -201,7 +202,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # satellites = await hass.async_add_executor_job(load.tle_file, (STATIONS_URL, reload=True))
     satellites = await hass.async_add_executor_job(load_satellites)
-    satellite = await hass.async_add_executor_job(select_satellite, satellites)
+    satellite = await hass.async_add_executor_job(
+        select_satellite, satellites, SATELLITE_NAME
+    )
 
     iss = pyiss.ISS()
 
