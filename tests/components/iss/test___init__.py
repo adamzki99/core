@@ -21,7 +21,9 @@ from homeassistant.components.iss.const import (
 
 def test_get_pass_details() -> None:
     """Test for get_pass_details."""
-    skyfield_satellite_objects = load.tle_file("mock_data.txt")
+    skyfield_satellite_objects = load.tle_file(
+        "/workspaces/core/tests/components/iss/mock_data.txt"
+    )
     skyfield_satellite_objects_by_name = {
         sat.name: sat for sat in skyfield_satellite_objects
     }
