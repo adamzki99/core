@@ -24,7 +24,6 @@ from .const import (
     DOMAIN,
     OBSERVER_LATITUDE,
     OBSERVER_LONGITUDE,
-    SATELLITE_NAME,
     STATIONS_URL,
 )
 
@@ -179,15 +178,30 @@ def update(iss: pyiss.ISS, skyfield_satellite_object: EarthSatellite) -> IssData
     )
 
 
+def load_satellites() -> list:
+    """Load the lists of available satellites from the Skyfield API."""
+    return load.tle_file(STATIONS_URL)
+
+
+def select_satellite(satellites: list, satellite_name: str):
+    """Select a specific satellite by name.
+
+    Args:
+        satellites (list): Lists of satellites loaded using load_satellites()
+        satellite_name (str): The desired satellite object to select
+    """
+
+    by_name = {sat.name: sat for sat in satellites}
+    return by_name[satellite_name]
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up this integration using UI."""
     hass.data.setdefault(DOMAIN, {})
 
     # satellites = await hass.async_add_executor_job(load.tle_file, (STATIONS_URL, reload=True))
-    satellites = await hass.async_add_executor_job(load.tle_file, STATIONS_URL)
-
-    by_name = {sat.name: sat for sat in satellites}
-    satellite = by_name[SATELLITE_NAME]
+    satellites = await hass.async_add_executor_job(load_satellites)
+    satellite = await hass.async_add_executor_job(select_satellite, satellites)
 
     iss = pyiss.ISS()
 

@@ -9,6 +9,7 @@ from homeassistant.components.iss import (
     define_observer_information,
     define_time_range,
     get_pass_details,
+    select_satellite,
 )
 from homeassistant.components.iss.const import (
     ALTIUDE_DEGREES,
@@ -79,3 +80,13 @@ def test_define_time_range() -> None:
     # Check that the types are correct
     assert isinstance(start_time, Time)
     assert isinstance(end_time, Time)
+
+
+def test_load_satellites() -> None:
+    """Test for the loading of satellites available in the API."""
+
+    satellites = load.tle_file("mock_data.txt")
+
+    satellite = select_satellite(satellites, "ISS (ZARYA)")
+
+    assert "ISS (ZARYA) catalog #25544" in str(satellite)
