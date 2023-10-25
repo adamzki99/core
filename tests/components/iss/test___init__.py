@@ -87,7 +87,7 @@ def test_define_time_range() -> None:
 def test_load_satellites() -> None:
     """Test for the loading of satellites available in the API."""
 
-    satellites = load.tle_file("mock_data.txt")
+    satellites = load.tle_file("/workspaces/core/tests/components/iss/mock_data.txt")
 
     satellite = select_satellite(satellites, "ISS (ZARYA)")
 
