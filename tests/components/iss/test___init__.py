@@ -18,8 +18,8 @@ from homeassistant.components.iss.const import (
 )
 
 
-def test_returns_get_pass_details() -> None:
-    """Test for get_pass_details returns are not None."""
+def test_get_pass_details() -> None:
+    """Test for get_pass_details."""
     skyfield_satellite_objects = load.tle_file("mock_data.txt")
     skyfield_satellite_objects_by_name = {
         sat.name: sat for sat in skyfield_satellite_objects
@@ -30,7 +30,10 @@ def test_returns_get_pass_details() -> None:
         OBSERVER_LATITUDE, OBSERVER_LONGITUDE, CET_TIMEZONE
     )
 
-    current_time, next_day_time = define_time_range(datetime.now())
+    # Get the current time
+    now = datetime(2023, 10, 25, 14, 30, 0)
+
+    current_time, next_day_time = define_time_range(now)
 
     # Find ISS passes
     t, events = skyfield_satellite_object.find_events(
@@ -41,7 +44,11 @@ def test_returns_get_pass_details() -> None:
         t, events, observer_timezone, observer_location, skyfield_satellite_object
     )
 
-    assert pass_details[0]["culminate"] is not None
+    assert isinstance(pass_details, list)
+    assert len(pass_details) == 5
+    assert pass_details[0]["culminate"]["Datetime"] == "2023 Oct 25 17:31:35"
+    assert pass_details[0]["culminate"]["Azimuth"] == 218.8354077873246
+    assert pass_details[0]["culminate"]["Altitude"] == 69.85713951881213
 
 
 def test_define_time_range() -> None:
