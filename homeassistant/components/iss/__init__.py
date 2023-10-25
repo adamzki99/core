@@ -52,7 +52,7 @@ class SatellitePass:
     azimuth: int
 
 
-def define_time_range() -> tuple:
+def define_time_range(now: datetime) -> tuple:
     """Define a time range spanning from the current time to the end of the next day.
 
     Returns a tuple containing two datetime objects representing the start and end of the time range.
@@ -64,8 +64,6 @@ def define_time_range() -> tuple:
             The first element is the current time.
             The second element is the end time of the next day.
     """
-
-    now = datetime.now()
     tomorrow = now.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(
         days=1
     )
@@ -163,7 +161,7 @@ def update(iss: pyiss.ISS, skyfield_satellite_object: EarthSatellite) -> IssData
         OBSERVER_LATITUDE, OBSERVER_LONGITUDE, CET_TIMEZONE
     )
 
-    current_time, next_day_time = define_time_range()
+    current_time, next_day_time = define_time_range(datetime.now())
 
     # Find ISS passes
     t, events = skyfield_satellite_object.find_events(
