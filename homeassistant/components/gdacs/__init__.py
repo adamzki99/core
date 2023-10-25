@@ -89,6 +89,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
                 "integration_title": "Global Disaster Alert and Coordination System",
             },
         )
+
     return True
 
 
