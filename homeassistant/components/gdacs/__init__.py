@@ -13,11 +13,10 @@ from homeassistant.const import (
     CONF_SCAN_INTERVAL,
     UnitOfLength,
 )
-from homeassistant.core import DOMAIN as HOMEASSISTANT_DOMAIN, HomeAssistant, callback
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import aiohttp_client, config_validation as cv
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.event import async_track_time_interval
-from homeassistant.helpers.issue_registry import IssueSeverity, async_create_issue
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.util.unit_conversion import DistanceConverter
 from homeassistant.util.unit_system import US_CUSTOMARY_SYSTEM
@@ -90,7 +89,6 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
                 "integration_title": "Global Disaster Alert and Coordination System",
             },
         )
-
     return True
 
 

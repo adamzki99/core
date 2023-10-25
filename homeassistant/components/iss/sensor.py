@@ -31,7 +31,14 @@ async def async_setup_entry(
 
     show_on_map = entry.options.get(CONF_SHOW_ON_MAP, False)
 
-    async_add_entities([IssSensor(coordinator, entry, show_on_map)])
+    async_add_entities(
+        [
+            IssSensor(coordinator, entry, show_on_map, "people"),
+            IssSensor(coordinator, entry, show_on_map, "pass_time"),
+            IssSensor(coordinator, entry, show_on_map, "pass_azimuth"),
+            IssSensor(coordinator, entry, show_on_map, "pass_altitude"),
+        ]
+    )
 
 
 class IssSensor(CoordinatorEntity[DataUpdateCoordinator[IssData]], SensorEntity):
@@ -39,16 +46,20 @@ class IssSensor(CoordinatorEntity[DataUpdateCoordinator[IssData]], SensorEntity)
 
     _attr_has_entity_name = True
     _attr_name = None
+    _key: str
 
     def __init__(
         self,
         coordinator: DataUpdateCoordinator[IssData],
         entry: ConfigEntry,
         show: bool,
+        key: str,
     ) -> None:
         """Initialize the sensor."""
+        self._key = key
         super().__init__(coordinator)
-        self._attr_unique_id = f"{entry.entry_id}_people"
+        self.entity_id = f"sensor.iss_{key}"
+        self._attr_unique_id = f"{entry.entry_id}_{key}"
         self._show_on_map = show
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
@@ -57,29 +68,37 @@ class IssSensor(CoordinatorEntity[DataUpdateCoordinator[IssData]], SensorEntity)
         )
 
     @property
-    def native_value(self) -> int:
+    def native_value(self):
         """Return number of people in space."""
-        return self.coordinator.data.number_of_people_in_space
+        if self._key == "people":
+            return self.coordinator.data.number_of_people_in_space
+        if self._key == "pass_azimuth":
+            return self.coordinator.data.iss_passes.get("Azimuth")
+        if self._key == "pass_altitude":
+            return self.coordinator.data.iss_passes.get("Altitude")
+        return self.coordinator.data.iss_passes.get("Datetime")
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return the state attributes."""
         attrs = {}
-        if self._show_on_map:
+        if self._show_on_map and self._key == "pass_time":
             attrs[ATTR_LONGITUDE] = self.coordinator.data.current_location.get(
                 "longitude"
             )
             attrs[ATTR_LATITUDE] = self.coordinator.data.current_location.get(
                 "latitude"
             )
+            attrs["pass_time"] = self.coordinator.data.iss_passes.get("Datetime")
+            attrs["pass_azimuth"] = self.coordinator.data.iss_passes.get("Azimuth")
+            attrs["pass_altitude"] = self.coordinator.data.iss_passes.get("Altitude")
+
+            attrs["pass_time"] = self.coordinator.data.iss_passes.get("Datetime")
+            attrs["pass_azimuth"] = self.coordinator.data.iss_passes.get("Azimuth")
+            attrs["pass_altitude"] = self.coordinator.data.iss_passes.get("Altitude")
+
         else:
             attrs["long"] = self.coordinator.data.current_location.get("longitude")
             attrs["lat"] = self.coordinator.data.current_location.get("latitude")
 
         return attrs
-
-
-# @property
-# def next_pass(self):
-
-#     return None
