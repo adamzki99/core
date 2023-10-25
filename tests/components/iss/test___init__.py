@@ -1,6 +1,9 @@
 """Tests for functions in __init__.py."""
 
+from datetime import datetime
+
 from skyfield.api import load
+from skyfield.timelib import Time
 
 from homeassistant.components.iss import (
     define_observer_information,
@@ -27,7 +30,7 @@ def test_returns_get_pass_details() -> None:
         OBSERVER_LATITUDE, OBSERVER_LONGITUDE, CET_TIMEZONE
     )
 
-    current_time, next_day_time = define_time_range()
+    current_time, next_day_time = define_time_range(datetime.now())
 
     # Find ISS passes
     t, events = skyfield_satellite_object.find_events(
@@ -41,10 +44,31 @@ def test_returns_get_pass_details() -> None:
     assert pass_details[0]["culminate"] is not None
 
 
-def test_returns_define_time_range() -> None:
-    """Test for define_time_range returns are not None."""
+def test_define_time_range() -> None:
+    """Test for define_time_range."""
 
-    response = define_time_range()
+    # Get the current time
+    now = datetime(2023, 10, 25, 14, 30, 0)
 
-    assert response[0] is not None
-    assert response[1] is not None
+    # Calculate the expected next day's end time
+    local_timescale = load.timescale()
+    expected_start_time = local_timescale.utc(2023, 10, 25, 14, 30, 0)
+    expected_end_time = local_timescale.utc(2023, 10, 26, 23, 59, 59)
+
+    # Call the function
+    start_time, end_time = define_time_range(now)
+
+    # Check that the start_time is correct
+    assert start_time == expected_start_time
+
+    # Check that the end_time is correct
+    assert end_time == expected_end_time
+
+    # Check that start_time is before end_time
+    assert float(str(start_time).split("=")[1].split(">")[0]) < float(
+        str(end_time).split("=")[1].split(">")[0]
+    )
+
+    # Check that the types are correct
+    assert isinstance(start_time, Time)
+    assert isinstance(end_time, Time)
